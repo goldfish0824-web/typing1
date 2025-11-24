@@ -100,11 +100,22 @@
       .statbox{grid-template-columns:repeat(3,1fr);}
       main{padding:14px;}
     }
-  </style>
+  
+/* --- Flight mini game --- */
+.flight-wrap{margin:8px 0 12px; width:100%; background:#eaf6ff; border-radius:12px; overflow:hidden; border:1px solid #cfe7f6;}
+#flightCanvas{width:100%; height:180px; display:block;}
+@media (max-width:640px){
+  #flightCanvas{height:140px;}
+}
+</style>
 </head>
 <body>
 <main>
   <h1>System Typing <span>System英単語 No.1–600 タイピング練習</span></h1>
+  <div id="flightWrap" class="flight-wrap" aria-label="Flight mini game">
+    <canvas id="flightCanvas" width="800" height="180"></canvas>
+  </div>
+
   <div class="panel">
     <div class="grid">
       <div>
@@ -181,7 +192,7 @@
     <div class="leaderboard">
       <h3>今週のトップ10（この端末内ランキング） <span class="pill" id="weekKeyLabel"></span></h3>
       <ol id="lbList"></ol>
-      <div class="muted">※同じPC/スマホ内だけに保存されます。</div>
+      <div class="muted">※同じPC/スマホ内だけに保存されます。クラス全体の共有ランキングは後述。</div>
     </div>
   </div>
 </main>
@@ -240,6 +251,268 @@
     ovClose: document.getElementById('ovClose'),
     rubricBox: document.getElementById('rubricBox'),
   };
+  // ---------- Flight Mini Game ----------
+  const flight = (() => {
+    const canvas = document.getElementById('flightCanvas');
+    if(!canvas) return {init(){},tick(){},boost(){},penalty(){},onQuestion(){},reset(){}};
+    const ctx = canvas.getContext('2d');
+    let W=canvas.width, H=canvas.height;
+    const seaH = 32;
+    let altitude = 65;          // 0-100
+    let fell = false, cleared = false;
+    let lastT = null;
+    let landProgress = 0;       // 0..1 in last 10s
+    let streak = 0;
+    let sparkles = [];
+    let bubbles = [];
+    let splashes = [];
+    let qStartAt = Date.now();
+
+    function resize(){
+      const rect = canvas.getBoundingClientRect();
+      // keep internal resolution proportional
+      W = canvas.width = Math.max(420, Math.floor(rect.width*2));
+      H = canvas.height = Math.floor((rect.height||180)*2);
+    }
+    window.addEventListener('resize', resize);
+
+    function onQuestion(){ qStartAt = Date.now(); }
+
+    function spawnSparkle(){
+      const x = W*0.25, y = H*(1-altitude/100) - 8;
+      for(let i=0;i<6;i++){
+        sparkles.push({
+          x, y,
+          vx:(Math.random()*2-1)*1.2,
+          vy:(Math.random()*-2-0.5),
+          life: 600
+        });
+      }
+    }
+    function spawnBubbles(big=false){
+      const count = big?18:8;
+      for(let i=0;i<count;i++){
+        bubbles.push({
+          x: W*0.18 + Math.random()*40,
+          y: H-seaH + Math.random()*8,
+          r: big? (4+Math.random()*6) : (2+Math.random()*4),
+          vy: - (0.4+Math.random()*1.2),
+          life: big?1200:700
+        });
+      }
+      splashes.push({life: big?700:350, big});
+    }
+
+    function playBoostTone(){
+      try{
+        ensureAudio();
+        const a = audioCtx;
+        const o = a.createOscillator();
+        const g = a.createGain();
+        o.type='triangle';
+        const now=a.currentTime;
+        o.frequency.setValueAtTime(880, now);
+        o.frequency.exponentialRampToValueAtTime(1320, now+0.12);
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.15, now+0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+0.18);
+        o.connect(g).connect(a.destination);
+        o.start(now);
+        o.stop(now+0.2);
+      }catch(e){}
+    }
+
+    function boost(){
+      if(fell||cleared) return;
+      const elapsed = Date.now()-qStartAt;
+      const fast = Math.max(0, 1 - elapsed/2500); // 0..1
+      const add = 9 + fast*14;  // easy mode
+      altitude = Math.min(100, altitude + add);
+      streak++;
+      if(streak>=3){
+        spawnSparkle();
+        if(streak===3 || streak===6 || streak===9) playBoostTone();
+      }
+    }
+    function penalty(big=false){
+      if(fell||cleared) return;
+      streak=0;
+      altitude = Math.max(0, altitude - (big?3:2));
+      spawnBubbles(false);
+    }
+
+    function tick(leftMs){
+      if(!lastT){ lastT=Date.now(); return; }
+      const now=Date.now();
+      const dt=(now-lastT)/1000;
+      lastT=now;
+
+      if(fell||cleared) { draw(leftMs); return; }
+
+      // gravity (slow fall) easy tuned
+      altitude = Math.max(0, altitude - dt*1.3);
+
+      if(leftMs!=null && leftMs<=10000){
+        landProgress = 1 - Math.max(0, leftMs)/10000;
+      } else {
+        landProgress = 0;
+      }
+
+      if(altitude<=0 && !fell){
+        fell=true;
+        window.__fell = true;
+        spawnBubbles(true);
+        draw(leftMs, true);
+        try{ if(timer) clearInterval(timer); }catch(e){}
+        setTimeout(()=>finish(true), 400);
+        return;
+      }
+      draw(leftMs);
+    }
+
+    function reset(){
+      altitude=65; fell=false; cleared=false; lastT=null; landProgress=0; streak=0;
+      sparkles=[]; bubbles=[]; splashes=[];
+    }
+
+    function setCleared(){
+      cleared=true;
+      draw(0);
+    }
+
+    function draw(leftMs, justFell=false){
+      resize();
+      ctx.clearRect(0,0,W,H);
+
+      // sky gradient
+      const g = ctx.createLinearGradient(0,0,0,H);
+      g.addColorStop(0,'#cfe9ff');
+      g.addColorStop(1,'#f8fdff');
+      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+      // clouds
+      ctx.fillStyle='rgba(255,255,255,0.8)';
+      for(let i=0;i<4;i++){
+        const cx=W*(0.15+i*0.2), cy=H*0.18+(i%2)*10;
+        ctx.beginPath(); ctx.ellipse(cx,cy,36,14,0,0,Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(cx+26,cy+3,28,12,0,0,Math.PI*2); ctx.fill();
+      }
+
+      // draw land approaching in last 10s
+      if(landProgress>0){
+        const landW = W*0.35*landProgress;
+        ctx.fillStyle='#b7e3a0';
+        ctx.fillRect(W-landW, H-seaH-18, landW, 18);
+        ctx.fillStyle='#7cc27a';
+        ctx.beginPath();
+        ctx.moveTo(W-landW, H-seaH-18);
+        ctx.lineTo(W, H-seaH-18);
+        ctx.lineTo(W, H-seaH-30);
+        ctx.closePath(); ctx.fill();
+      }
+
+      // sea
+      ctx.fillStyle='#66b7e8';
+      ctx.fillRect(0,H-seaH,W,seaH);
+
+      // small waves
+      ctx.strokeStyle='rgba(255,255,255,0.7)';
+      ctx.lineWidth=2;
+      for(let x=0;x<W;x+=60){
+        ctx.beginPath();
+        ctx.arc(x+20, H-seaH+6, 18, Math.PI, 0);
+        ctx.stroke();
+      }
+
+      // splashes (wave arcs) on miss/fall
+      splashes = splashes.filter(s=>s.life>0);
+      splashes.forEach(s=>{
+        s.life-=16;
+        const k = 1 - s.life/(s.big?700:350);
+        const r = (s.big?46:26)*k;
+        ctx.strokeStyle=`rgba(255,255,255,${0.9*(1-k)})`;
+        ctx.lineWidth=s.big?4:3;
+        ctx.beginPath();
+        ctx.arc(W*0.18, H-seaH+2, r, Math.PI, 0);
+        ctx.stroke();
+      });
+
+      // bubbles
+      bubbles = bubbles.filter(b=>b.life>0);
+      bubbles.forEach(b=>{
+        b.life-=16; b.y += b.vy*2;
+        ctx.fillStyle='rgba(255,255,255,0.85)';
+        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
+      });
+
+      // sparkles
+      sparkles = sparkles.filter(p=>p.life>0);
+      sparkles.forEach(p=>{
+        p.life-=16; p.x+=p.vx*2; p.y+=p.vy*2;
+        ctx.fillStyle=`rgba(255,255,180,${p.life/600})`;
+        ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2); ctx.fill();
+      });
+
+      // stickman + winged bike
+      const baseY = H-seaH-8;
+      let y = baseY - (altitude/100)*(H-seaH-60);
+      // landing on land when cleared (last 1.5s): smoothly move bike down to land surface
+      const landTopY = H - seaH - 18;
+      const landY = landTopY - 22; // wheel bottom touches land top (y+22)
+      if(!fell && leftMs!=null && leftMs<=1500){
+        const lp = Math.min(1, Math.max(0, 1 - leftMs/1500));
+        y = y*(1-lp) + landY*lp;
+      }
+      const xStart = W*0.22;
+      const xEnd = W*0.72; // reach land at end
+      const x = xStart + landProgress*(xEnd-xStart);
+
+      // wings
+      ctx.strokeStyle='rgba(255,255,255,0.9)';
+      ctx.lineWidth=3;
+      ctx.beginPath();
+      ctx.moveTo(x-12,y-18); ctx.quadraticCurveTo(x-40,y-30,x-55,y-12);
+      ctx.moveTo(x+12,y-18); ctx.quadraticCurveTo(x+40,y-30,x+55,y-12);
+      ctx.stroke();
+
+      // bike wheels
+      ctx.strokeStyle='#222'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(x-16,y+12,10,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(x+18,y+12,10,0,Math.PI*2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x-6,y+12); ctx.lineTo(x+8,y+12); ctx.stroke();
+
+      // stickman
+      ctx.strokeStyle='#111'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(x, y-20, 7, 0, Math.PI*2); ctx.stroke(); // head
+      ctx.beginPath(); ctx.moveTo(x, y-13); ctx.lineTo(x, y+2); ctx.stroke(); // body
+      ctx.beginPath(); ctx.moveTo(x, y-6); ctx.lineTo(x-12, y-2); ctx.stroke(); // arm
+      ctx.beginPath(); ctx.moveTo(x, y-6); ctx.lineTo(x+10, y-1); ctx.stroke(); // arm
+      ctx.beginPath(); ctx.moveTo(x, y+2); ctx.lineTo(x-10, y+12); ctx.stroke(); // leg
+      ctx.beginPath(); ctx.moveTo(x, y+2); ctx.lineTo(x+6, y+12); ctx.stroke(); // leg
+
+      // HUD text
+      ctx.fillStyle='#08324a'; ctx.font=`${Math.floor(H*0.09)}px sans-serif`;
+      const altTxt = fell? 'FALL!' : (cleared? 'Clear!' : `Height ${Math.round(altitude)}%`);
+      ctx.fillText(altTxt, 12, 28);
+
+      if(cleared){
+        ctx.fillStyle='#fff';
+        ctx.strokeStyle='#0a4'; ctx.lineWidth=6;
+        ctx.font=`bold ${Math.floor(H*0.22)}px sans-serif`;
+        ctx.strokeText('Clear!', W*0.35, H*0.5);
+        ctx.fillText('Clear!', W*0.35, H*0.5);
+      }
+      if(justFell){
+        ctx.fillStyle='#fff';
+        ctx.font=`bold ${Math.floor(H*0.18)}px sans-serif`;
+        ctx.fillText('Splash!', W*0.33, H*0.45);
+      }
+    }
+
+    return {tick,boost,penalty,onQuestion,reset,setCleared};
+  })();
+  // ---------- /Flight Mini Game ----------
+
 
   let seq = [], idx = 0, correct = 0, mist = 0, typed = 0;
   let startAt = 0, timer = null, endAt = 0;
@@ -450,6 +723,7 @@
   }
 
   function showQuestion(){
+    flight.onQuestion();
     stopHintRAF();
     if(idx >= seq.length) return finish(false);
     const cur = seq[idx];
@@ -461,6 +735,7 @@
   }
 
   function start(){
+    flight.reset();
     buildSequence();
     idx=0; correct=0; mist=0; typed=0;
     startAt = Date.now();
@@ -477,10 +752,11 @@
         UI.remain.textContent=fmt(left);
         if(left<=0) finish(true);
         UI.wpm.textContent=wpm();
+        flight.tick(left);
       },250);
     } else {
       UI.remain.textContent='--:--';
-      timer=setInterval(()=>{UI.wpm.textContent=wpm();},500);
+      timer=setInterval(()=>{UI.wpm.textContent=wpm(); flight.tick(null);},500);
     }
     setStats();
     showQuestion();
@@ -489,16 +765,16 @@
   function skipCurrent(){
     if(idx>=seq.length) return;
     log('#'+seq[idx].id+' スキップ ['+seq[idx].q+'] → '+seq[idx].a,'ng');
-    mist++; playTone('ng'); idx++; setStats(); showQuestion();
+    mist++; playTone('ng'); flight.penalty(); idx++; setStats(); showQuestion();
   }
 
   function buildRubric(activeLabel){
     const rows = [
-      {label:'Poor', range:'0〜5問/分'},
-      {label:'Good', range:'6〜10問/分'},
-      {label:'Great', range:'11〜15問/分'},
-      {label:'Excellent', range:'16〜20問/分'},
-      {label:'Perfect', range:'21問以上/分'},
+      {label:'Poor', range:'0〜3問/分'},
+      {label:'Good', range:'4〜6問/分'},
+      {label:'Great', range:'7〜9問/分'},
+      {label:'Excellent', range:'10〜12問/分'},
+      {label:'Perfect', range:'13問以上/分'},
     ];
     UI.rubricBox.innerHTML='';
     rows.forEach(r=>{
@@ -512,6 +788,19 @@
   function showResultOverlay(byTime, spentSec, label){
     const mins = spentSec/60 || 1;
     const perMin = correct/mins;
+
+    // If player fell into the sea, don't show evaluation label/rubric highlight
+    if(!label){
+      UI.ovBadge.style.display='none';
+      UI.ovTitle.textContent='Game Over';
+      UI.ovDetail.textContent=`正答 ${correct} / ${seq.length}・ミス/スキップ ${mist}・平均 ${perMin.toFixed(1)} 問/分`;
+      buildRubric(null);
+      renderLeaderboard();
+      UI.ovSmall.textContent='海に落ちてしまいました…もう一度チャレンジ！';
+      UI.overlay.classList.add('show');
+      return;
+    }
+    UI.ovBadge.style.display='inline-flex';
     let title='Good!'; let grad='linear-gradient(90deg,#4facfe,#00f2fe)';
     if(label==='Poor'){ title='Keep Going!'; grad='linear-gradient(90deg,#555,#888)'; }
     if(label==='Great'){ title='Great!'; grad='linear-gradient(90deg,#67e8f9,#22c55e)'; }
@@ -562,10 +851,10 @@
     const perMin=correct/mins;
 
     let label='Good';
-    if(perMin<=5) label='Poor';
-    else if(perMin<=10) label='Good';
-    else if(perMin<=15) label='Great';
-    else if(perMin<=20) label='Excellent';
+    if(perMin<=3) label='Poor';
+    else if(perMin<=6) label='Good';
+    else if(perMin<=9) label='Great';
+    else if(perMin<=12) label='Excellent';
     else label='Perfect';
 
     UI.feedback.textContent=(byTime?'時間切れ':'終了')+`：正答 ${correct} / ${seq.length}，ミス ${mist}，平均 ${perMin.toFixed(1)}問/分`;
@@ -575,7 +864,7 @@
     addScore(name, correct);
     renderLeaderboard();
 
-    showResultOverlay(byTime, spent, label);
+    showResultOverlay(byTime, spent, window.__fell ? null : label);
   }
 
   UI.input.addEventListener('input',(e)=>{
@@ -586,11 +875,11 @@
     const target=cur.a; const mode=UI.judge.value;
     const ok=(mode==='strict') ? (normStrict(v)===normStrict(target)) : (normLoose(v)===normLoose(target));
     if(mode==='strict' && !normStrict(target).startsWith(normStrict(v))) {
-      mist++; setStats(); playTone('ng');
+      mist++; setStats(); playTone('ng'); flight.penalty();
       log('#'+cur.id+' ミスタイプ ['+cur.q+'] → '+v+' (正:'+target+')','ng');
     }
     if(ok){
-      correct++; setStats(); playTone('ok');
+      correct++; setStats(); playTone('ok'); flight.boost();
       log('#'+cur.id+' 正解 ['+cur.q+'] → '+target,'ok');
       idx++; showQuestion();
     }
