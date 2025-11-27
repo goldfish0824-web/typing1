@@ -12,228 +12,6 @@
       color:#eef1ff;
     }
     main{max-width:980px;margin:0 auto;padding:20px;}
-
-    /* ===== ここからアニメーションカードのスタイル ===== */
-    .anim-card{
-      position:relative;
-      width:100%;
-      max-width:980px;
-      margin:8px auto 18px;
-      border-radius:20px;
-      overflow:hidden;
-      background:linear-gradient(180deg,#cce9ff,#8ed0ff 52%,#399ffc 52%,#0b1440 100%);
-      box-shadow:0 18px 40px rgba(0,0,0,.45);
-      /* 画面の横幅に応じて高さが決まる（スマホでも必ず収まる） */
-      aspect-ratio: 16 / 6;
-    }
-    @media (max-width:720px){
-      .anim-card{
-        aspect-ratio: 16 / 9;  /* 縦長画面では少し高さを増やす */
-        margin:10px auto 14px;
-      }
-    }
-
-    .anim-label{
-      position:absolute;
-      top:8px;
-      left:14px;
-      font-size:14px;
-      font-weight:700;
-      color:#0b1030;
-      text-shadow:0 0 8px rgba(255,255,255,.9);
-      z-index:3;
-    }
-    .anim-label span{
-      margin-left:4px;
-    }
-
-    .anim-sky{
-      position:relative;
-      width:100%;
-      height:100%;
-      overflow:hidden;
-    }
-
-    .anim-sea{
-      position:absolute;
-      left:0;
-      bottom:0;
-      width:100%;
-      height:28%;
-      background:linear-gradient(180deg,#57befa,#0d4d93);
-    }
-    .anim-sea::before{
-      content:"";
-      position:absolute;
-      top:-6px;
-      left:0;
-      width:200%;
-      height:10px;
-      background:
-        radial-gradient(circle at 10px 6px, #fff 0, #fff 3px, transparent 3px) repeat-x;
-      background-size:20px 10px;
-      opacity:.9;
-      animation:wave 6s linear infinite;
-    }
-
-    .cloud{
-      position:absolute;
-      top:12%;
-      width:70px;
-      height:26px;
-      background:#fff;
-      border-radius:40px;
-      opacity:.8;
-      filter:drop-shadow(0 4px 4px rgba(0,0,0,.12));
-      animation:cloud-move 28s linear infinite;
-    }
-    .cloud::before,
-    .cloud::after{
-      content:"";
-      position:absolute;
-      width:40px;
-      height:40px;
-      background:#fff;
-      border-radius:50%;
-      top:-10px;
-    }
-    .cloud::before{ left:4px; }
-    .cloud::after{ right:4px; }
-
-    .cloud.c1{ left:-80px; animation-delay:-3s; }
-    .cloud.c2{ left:40%; top:20%; width:80px; animation-delay:-10s; }
-    .cloud.c3{ left:70%; top:10%; width:60px; animation-delay:-18s; }
-
-    .bike-wrap{
-      position:absolute;
-      left:50%;
-      top:46%;
-      transform:translate(-50%,-50%);
-      animation:bike-float 3s ease-in-out infinite;
-      z-index:2;
-    }
-    .bike{
-      position:relative;
-      width:80px;
-      height:60px;
-    }
-    .bike .wheel{
-      position:absolute;
-      bottom:0;
-      width:24px;
-      height:24px;
-      border-radius:50%;
-      border:3px solid #222c4a;
-      background:radial-gradient(circle,#fff 0,#fff 3px,transparent 3px);
-      box-shadow:0 0 0 2px rgba(255,255,255,.3);
-      animation:wheel-spin 1.4s linear infinite;
-    }
-    .bike .wheel.left{ left:4px; }
-    .bike .wheel.right{ right:4px; }
-
-    .bike .frame{
-      position:absolute;
-      left:12px;
-      right:12px;
-      bottom:11px;
-      height:24px;
-    }
-    .bike .frame::before,
-    .bike .frame::after{
-      content:"";
-      position:absolute;
-      border-radius:999px;
-      background:#222c4a;
-    }
-    .bike .frame::before{
-      left:0;
-      right:0;
-      top:8px;
-      height:3px;          /* 横フレーム */
-    }
-    .bike .frame::after{
-      left:18px;
-      width:3px;
-      bottom:0;
-      top:-6px;            /* 縦フレーム */
-    }
-
-    .bike .person{
-      position:absolute;
-      left:32px;
-      bottom:22px;
-      width:18px;
-      height:26px;
-    }
-    .bike .person::before{
-      content:"";
-      position:absolute;
-      width:12px;
-      height:12px;
-      border-radius:50%;
-      background:#222c4a;
-      top:-10px;
-      left:3px;
-    }
-    .bike .person::after{
-      content:"";
-      position:absolute;
-      left:8px;
-      bottom:0;
-      width:3px;
-      height:24px;
-      background:#222c4a;
-    }
-
-    .bike .wings{
-      position:absolute;
-      left:-6px;
-      right:-6px;
-      top:2px;
-      height:18px;
-      display:flex;
-      justify-content:space-between;
-      pointer-events:none;
-    }
-    .bike .wing{
-      width:18px;
-      height:18px;
-      border-radius:50% 50% 0 50%;
-      border:2px solid rgba(255,255,255,.9);
-      border-bottom:none;
-      border-right:none;
-      transform-origin:100% 100%;
-      animation:wing-flap 0.6s ease-in-out infinite;
-    }
-    .bike .wing.right{
-      transform-origin:0 100%;
-      border-radius:50% 50% 50% 0;
-      border-right:2px solid rgba(255,255,255,.9);
-      border-left:none;
-    }
-
-    @keyframes wave{
-      0%{transform:translateX(0);}
-      100%{transform:translateX(-50%);}
-    }
-    @keyframes cloud-move{
-      0%{transform:translateX(0);}
-      100%{transform:translateX(120vw);}
-    }
-    @keyframes bike-float{
-      0%,100%{transform:translate(-50%,-48%);}
-      50%{transform:translate(-50%,-56%);}
-    }
-    @keyframes wheel-spin{
-      0%{transform:rotate(0deg);}
-      100%{transform:rotate(360deg);}
-    }
-    @keyframes wing-flap{
-      0%,100%{transform:rotate(0deg);}
-      50%{transform:rotate(-22deg);}
-    }
-    /* ===== アニメーションカードここまで ===== */
-
     .panel{
       background:#14183a;
       border:1px solid rgba(255,255,255,.1);
@@ -322,46 +100,27 @@
       .statbox{grid-template-columns:repeat(3,1fr);}
       main{padding:14px;}
     }
-  </style>
+  
+/* --- Flight mini game --- */
+.flight-wrap{margin:8px 0 12px; width:100%; background:#eaf6ff; border-radius:12px; overflow:hidden; border:1px solid #cfe7f6;}
+#flightCanvas{width:100%; height:180px; display:block;}
+@media (max-width:640px){
+  #flightCanvas{height:140px;}
+}
+</style>
 </head>
 <body>
 <main>
-
-  <!-- ★ 新しく追加したアニメーションカード -->
-  <div class="anim-card">
-    <div class="anim-label">
-      Height <span>59%</span>
-    </div>
-    <div class="anim-sky">
-      <div class="cloud c1"></div>
-      <div class="cloud c2"></div>
-      <div class="cloud c3"></div>
-
-      <div class="bike-wrap">
-        <div class="bike">
-          <div class="wheel left"></div>
-          <div class="wheel right"></div>
-          <div class="frame"></div>
-          <div class="person"></div>
-          <div class="wings">
-            <div class="wing left"></div>
-            <div class="wing right"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="anim-sea"></div>
-    </div>
-  </div>
-  <!-- ★ ここまでアニメーション -->
-
-  <!-- ここから下は、もとのレイアウトそのままです -->
   <h1>System Typing <span>System英単語 No.1–600 タイピング練習</span></h1>
+  <div id="flightWrap" class="flight-wrap" aria-label="Flight mini game">
+    <canvas id="flightCanvas" width="800" height="180"></canvas>
+  </div>
+
   <div class="panel">
     <div class="grid">
       <div>
         <label>名前（ランキング用）</label>
-        <input id="playerName" type="text" placeholder="例：2-1 Kito" maxlength="20"/>
+        <input id="playerName" type="text" placeholder="例：Bob" maxlength="20"/>
       </div>
       <div>
         <label>範囲（開始No.）</label>
