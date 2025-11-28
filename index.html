@@ -99,6 +99,19 @@
       .grid{grid-template-columns:repeat(2,1fr);}
       .statbox{grid-template-columns:repeat(3,1fr);}
       main{padding:14px;}
+      
+      /* スマホではアニメーションを入力欄の下に移動 */
+      main{
+        display: flex;
+        flex-direction: column;
+      }
+      #flightWrap{
+        order: 100;
+        margin-top: 16px;
+      }
+      .panel{
+        order: 1;
+      }
     }
   
 /* --- Flight mini game --- */
