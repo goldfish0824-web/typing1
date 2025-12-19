@@ -96,7 +96,7 @@
     .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#0f1435;border:1px solid rgba(255,255,255,.12);font-size:11px;opacity:.85;}
 
     @media (max-width:720px){
-      .grid{grid-template-columns:repeat(2,1fr);}
+      .grid{grid-template-columns:repeat(2,1fr) !important;}
       .statbox{grid-template-columns:repeat(3,1fr);}
       main{padding:14px;}
     }
@@ -136,7 +136,7 @@
   <h1>System Typing <span>System英単語 No.1–600 タイピング練習</span></h1>
   
   <div class="panel">
-    <div class="grid">
+    <div class="grid" style="grid-template-columns:repeat(6,1fr);">
       <div>
         <label>名前（ランキング用）</label>
         <input id="playerName" type="text" placeholder="例：Bob" maxlength="20"/>
@@ -162,6 +162,13 @@
         <select id="judge">
           <option value="strict" selected>厳密（大/小文字は無視）</option>
           <option value="loose">ゆるめ（空白も無視）</option>
+        </select>
+      </div>
+      <div>
+        <label>難易度</label>
+        <select id="difficulty">
+          <option value="easy" selected>甘口（やさしい）</option>
+          <option value="hard">辛口（難しい）</option>
         </select>
       </div>
     </div>
@@ -247,6 +254,7 @@
     endId: document.getElementById('endId'),
     order: document.getElementById('order'),
     judge: document.getElementById('judge'),
+    difficulty: document.getElementById('difficulty'),
     limit: document.getElementById('limit'),
     volume: document.getElementById('volume'),
     start: document.getElementById('start'),
@@ -349,7 +357,11 @@
       if(fell||cleared) return;
       const elapsed = Date.now()-qStartAt;
       const fast = Math.max(0, 1 - elapsed/2500); // 0..1
-      const add = 9 + fast*14;  // easy mode
+      // 難易度に応じてブースト量を調整（甘口は上昇量が多い）
+      const isEasy = UI.difficulty.value === 'easy';
+      const baseAdd = isEasy ? 5 : 9;
+      const fastBonus = isEasy ? 3 : 14;
+      const add = baseAdd + fast*fastBonus;
       altitude = Math.min(100, altitude + add);
       streak++;
       if(streak>=3){
@@ -360,7 +372,10 @@
     function penalty(big=false){
       if(fell||cleared) return;
       streak=0;
-      altitude = Math.max(0, altitude - (big?3:2));
+      // 難易度に応じてペナルティを調整
+      const isEasy = UI.difficulty.value === 'easy';
+      const penaltyAmount = isEasy ? (big ? 0.5 : 0.3) : (big ? 3 : 2);
+      altitude = Math.max(0, altitude - penaltyAmount);
       spawnBubbles(false);
     }
 
@@ -372,8 +387,10 @@
 
       if(fell||cleared) { draw(leftMs); return; }
 
-      // gravity (slow fall) easy tuned
-      altitude = Math.max(0, altitude - dt*1.3);
+      // 難易度に応じて重力（落下速度）を調整
+      const isEasy = UI.difficulty.value === 'easy';
+      const gravity = isEasy ? 1.2 : 1.3;
+      altitude = Math.max(0, altitude - dt*gravity);
 
       if(leftMs!=null && leftMs<=10000){
         landProgress = 1 - Math.max(0, leftMs)/10000;
@@ -394,8 +411,12 @@
     }
 
     function reset(){
-      altitude=65; fell=false; cleared=false; lastT=null; landProgress=0; streak=0;
+      // 難易度に応じて初期高度を設定（甘口は高めスタート）
+      const isEasy = UI.difficulty.value === 'easy';
+      altitude = isEasy ? 80 : 65;
+      fell=false; cleared=false; lastT=null; landProgress=0; streak=0;
       sparkles=[]; bubbles=[]; splashes=[];
+      window.__fell = false;
     }
 
     function setCleared(){
