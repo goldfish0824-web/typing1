@@ -1,950 +1,135 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>System Typing</title>
-  <style>
-    body{
-      font-family:-apple-system,system-ui,"Segoe UI",Roboto,"Noto Sans JP";
-      margin:0;
-      background:#050816;
-      color:#eef1ff;
-    }
-    main{max-width:980px;margin:0 auto;padding:20px;}
-    .panel{
-      background:#14183a;
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:18px;
-      padding:18px 18px 22px;
-      box-shadow:0 18px 40px rgba(0,0,0,.45);
-    }
-    h1{font-size:22px;margin:0 0 12px;}
-    h1 span{font-size:13px;font-weight:400;opacity:.7;margin-left:8px;}
-    .grid{
-      display:grid; gap:10px; grid-template-columns:repeat(5,1fr);
-    }
-    label{font-size:12px;opacity:.9;display:block;margin-bottom:4px;}
-    select,input[type=number],button,input[type=text]{
-      width:100%; padding:10px; border-radius:12px;
-      border:1px solid rgba(255,255,255,.18);
-      background:#0f1333; color:#eef1ff; box-sizing:border-box;
-    }
-    select:focus,input:focus,button:focus{outline:2px solid #6c8bff; outline-offset:1px;}
-    button{cursor:pointer; transition:transform .1s,box-shadow .1s,background .15s;}
-    button.primary{background:#3c5cff;border-color:#5f79ff;font-weight:700;box-shadow:0 6px 18px rgba(60,92,255,.45);}
-    button.primary:active{transform:translateY(1px);box-shadow:0 3px 10px rgba(0,0,0,.4);}
-    button.sub{background:#20264a;}
-    button.warn{background:#ff7b5c;border-color:#ffb29e;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Blue MarbleⅠ Retelling Practice (L1-L10)</title>
+    <style>
+        /* 基本設定 */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; max-width: 900px; margin: 0 auto; padding: 15px; background-color: #f0f2f5; color: #333; line-height: 1.6; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; border-bottom: 3px solid #3498db; padding-bottom: 10px; font-size: 1.5rem; }
+        
+        /* セレクター */
+        .selector-group { display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 20px; }
+        select { width: 100%; max-width: 400px; padding: 12px; font-size: 16px; border-radius: 8px; border: 2px solid #3498db; background: white; cursor: pointer; -webkit-appearance: none; }
+        
+        /* Partボタン */
+        .part-tabs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 15px; }
+        .part-tab { padding: 10px 20px; flex: 1 1 40%; max-width: 100px; cursor: pointer; background: #e0e0e0; border-radius: 8px; font-weight: bold; border: none; transition: 0.2s; font-size: 14px; touch-action: manipulation; }
+        .part-tab.active { background: #3498db; color: white; transform: scale(1.05); }
+        .hidden { display: none !important; }
 
-    .statbox{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:10px;}
-    .stat{background:#0f1435;border:1px dashed rgba(255,255,255,.15);padding:8px;border-radius:10px;font-size:12px;}
-    .stat strong{display:block;font-size:11px;opacity:.7;margin-bottom:4px;}
+        /* ステータス表示 */
+        .status-display { margin: 10px 0; padding: 10px; border-radius: 5px; background: #fdf9ea; border-left: 5px solid #f1c40f; font-size: 0.9em; text-align: center; }
+        .alert-text { color: #e74c3c; font-weight: bold; }
 
-    .prompt{margin-top:16px;font-size:18px;min-height:32px;}
-    .hint{
-      margin-top:10px; font-family:ui-monospace,Menlo,Consolas,monospace;
-      background:#0b0f29; padding:10px; border-radius:10px;
-      border:1px solid rgba(255,255,255,.08); min-height:26px; font-size:15px;
-    }
-    #input{margin-top:12px;font-size:16px;}
-    .controls-row{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-    .controls-row > *{flex:1 1 0;}
-    .controls-row .small{flex:0 0 auto;font-size:12px;white-space:nowrap;}
-    #feedback{margin-top:8px;font-size:12px;opacity:.9;min-height:16px;}
+        /* 入力エリア */
+        .input-area { margin-top: 15px; }
+        textarea { width: 100%; height: 180px; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; resize: vertical; font-family: sans-serif; -webkit-appearance: none; }
+        
+        /* ボタンエリア（スマホ向けに縦並び調整） */
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        button.main-btn { padding: 15px; font-size: 18px; cursor: pointer; border: none; border-radius: 12px; color: white; font-weight: bold; width: 100%; touch-action: manipulation; }
+        
+        .btn-chatgpt { background: #10a37f; }
+        .btn-chatgpt:active { background: #0d8a6a; transform: scale(0.98); }
+        
+        .btn-copy { background: #7f8c8d; }
+        .btn-copy:active { background: #626e6f; transform: scale(0.98); }
+        
+        .footer-note { font-size: 0.8em; color: #888; text-align: center; margin-top: 20px; line-height: 1.4; }
 
-    .log{margin-top:12px;background:#0f1435;border-radius:12px;border:1px solid rgba(255,255,255,.1);padding:10px;font-size:12px;max-height:200px;overflow:auto;display:none;}
-    .log-entry.ok{color:#7fffb0;}
-    .log-entry.ng{color:#ff9d8b;}
-
-    .leaderboard{
-      margin-top:12px; background:#0f1435; border:1px solid rgba(255,255,255,.12);
-      border-radius:12px; padding:10px; font-size:12px;
-    }
-    .leaderboard h3{margin:0 0 6px;font-size:13px;opacity:.9;}
-    .leaderboard ol{margin:0;padding-left:20px;}
-    .leaderboard li{margin:2px 0;}
-    .leaderboard .muted{opacity:.7;font-size:11px;}
-
-    .overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-      background:radial-gradient(circle at top,#202a5a90,#050816f0);
-      backdrop-filter:blur(6px);z-index:999;opacity:0;pointer-events:none;transition:opacity .25s ease-out;}
-    .overlay.visible{opacity:1;pointer-events:auto;}
-    .result-card{background:#111633;border-radius:20px;padding:20px 22px;text-align:center;
-      border:1px solid rgba(255,255,255,.22);box-shadow:0 24px 60px rgba(0,0,0,.7);
-      min-width:300px;max-width:560px;position:relative;overflow:hidden;}
-    .result-title{font-size:26px;margin-bottom:4px;}
-    .result-badge{display:inline-block;margin-bottom:8px;padding:4px 10px;border-radius:999px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-      background:linear-gradient(90deg,#ffcf71,#f76b1c);color:#222;font-weight:700;}
-    .result-detail{font-size:13px;opacity:.9;margin-bottom:6px;}
-    .result-small{font-size:11px;opacity:.7;margin-bottom:6px;}
-    .result-close{margin-top:10px;padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.5);
-      background:transparent;color:#fff;font-size:12px;}
-    .confetti-piece{position:absolute;width:6px;height:12px;background:#ffeb3b;top:-20px;border-radius:2px;opacity:0;animation:confetti-fall 1.8s ease-out forwards;}
-    @keyframes confetti-fall{0%{transform:translate3d(0,-40px,0) rotateZ(0deg);opacity:0;}10%{opacity:1;}100%{transform:translate3d(var(--dx,0),320px,0) rotateZ(360deg);opacity:0;}}
-
-    .rubric{margin:8px auto 6px; text-align:left; font-size:12px; max-width:420px;}
-    .rubric .row{display:flex;justify-content:space-between; padding:4px 8px; border-radius:8px; margin:2px 0; background:#0b1030; border:1px solid rgba(255,255,255,.08);}
-    .rubric .row.active{background:linear-gradient(90deg,#22c55e22,#67e8f922); border-color:#67e8f9aa;}
-    .rubric .label{font-weight:700;}
-    .rubric .range{opacity:.85;}
-
-    .lb-in-overlay{margin-top:8px;text-align:left;}
-    .lb-in-overlay h4{margin:4px 0;font-size:13px;}
-    .lb-in-overlay ol{margin:0;padding-left:20px;font-size:12px;}
-    .lb-in-overlay li{margin:2px 0;}
-    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:#0f1435;border:1px solid rgba(255,255,255,.12);font-size:11px;opacity:.85;}
-
-    @media (max-width:720px){
-      .grid{grid-template-columns:repeat(2,1fr) !important;}
-      .statbox{grid-template-columns:repeat(3,1fr);}
-      main{padding:14px;}
-    }
-  
-/* --- Flight mini game --- */
-.flight-wrap{margin:8px 0 12px; width:100%; background:#eaf6ff; border-radius:12px; overflow:hidden; border:1px solid #cfe7f6;}
-#flightCanvas{width:100%; height:180px; display:block;}
-@media (max-width:640px){
-  #flightCanvas{height:140px;}
-}
-
-/* スマホ用：アニメーションを入力欄の下に配置 */
-@media (max-width:720px){
-  #flightWrap{
-    order: 50;
-    margin-top: 12px;
-    margin-bottom: 0;
-  }
-  .panel{
-    display: flex;
-    flex-direction: column;
-  }
-  .panel > *:nth-child(1){order: 1;}  /* grid - 名前など */
-  .panel > *:nth-child(2){order: 2;}  /* statbox */
-  .panel > *:nth-child(3){order: 3;}  /* grid - 制限時間など */
-  .panel > *:nth-child(4){order: 4;}  /* prompt */
-  .panel > *:nth-child(5){order: 5;}  /* hint */
-  .panel > *:nth-child(6){order: 6;}  /* input */
-  .panel > *:nth-child(7){order: 60;} /* controls-row */
-  .panel > *:nth-child(8){order: 70;} /* log */
-  .panel > *:nth-child(9){order: 80;} /* leaderboard */
-}
-</style>
+        /* PC向けの調整（画面幅が広い場合） */
+        @media (min-width: 600px) {
+            .part-tab { flex: initial; }
+            .btn-group { flex-direction: row; justify-content: center; }
+            button.main-btn { width: auto; padding: 15px 40px; }
+        }
+    </style>
 </head>
 <body>
-<main>
-  <h1>System Typing <span>System英単語 No.1–600 タイピング練習</span></h1>
-  
-  <div class="panel">
-    <div class="grid" style="grid-template-columns:repeat(6,1fr);">
-      <div>
-        <label>名前（ランキング用）</label>
-        <input id="playerName" type="text" placeholder="例：Bob" maxlength="20"/>
-      </div>
-      <div>
-        <label>範囲（開始No.）</label>
-        <input id="startId" type="number" min="1" max="600" value="1"/>
-      </div>
-      <div>
-        <label>範囲（終了No.）</label>
-        <input id="endId" type="number" min="1" max="600" value="600"/>
-      </div>
-      <div>
-        <label>並び順</label>
-        <select id="order">
-          <option value="shuffle" selected>ランダム</option>
-          <option value="asc">番号順</option>
-          <option value="desc">番号逆順</option>
+
+<div class="container">
+    <h1>Blue MarbleⅠ Retelling</h1>
+
+    <div class="selector-group">
+        <label for="lessonSelect"><strong>Lessonを選択:</strong></label>
+        <select id="lessonSelect" onchange="changeLesson()">
+            <option value="">-- 選択してください --</option>
+            <option value="L1">Lesson 1: Friendships in the Digital Age</option>
+            <option value="L2">Lesson 2: Expos: Past, Present, and Future</option>
+            <option value="L3">Lesson 3: The Fascinating World of a Professional Storyteller</option>
+            <option value="L4">Lesson 4: Changing Behavior in Unique Ways</option>
+            <option value="L5">Lesson 5: A Journey to Peace</option>
+            <option value="L6">Lesson 6: Humans Evolve with Measurements</option>
+            <option value="L7">Lesson 7: Bio-logging: Discovering Animals’ Secrets</option>
+            <option value="L8">Lesson 8: What to Do with Too Many Tourists</option>
+            <option value="L9">Lesson 9: Surviving in the Information Age</option>
+            <option value="L10">Lesson 10: The Spirit of Zen: Less Is More</option>
         </select>
-      </div>
-      <div>
-        <label>判定</label>
-        <select id="judge">
-          <option value="strict" selected>厳密（大/小文字は無視）</option>
-          <option value="loose">ゆるめ（空白も無視）</option>
-        </select>
-      </div>
-      <div>
-        <label>難易度</label>
-        <select id="difficulty">
-          <option value="easy" selected>甘口（やさしい）</option>
-          <option value="hard">辛口（難しい）</option>
-        </select>
-      </div>
     </div>
 
-    <div class="statbox">
-      <div class="stat"><strong>進行</strong><span id="progress">0 / 0</span></div>
-      <div class="stat"><strong>正答</strong><span id="correct">0</span></div>
-      <div class="stat"><strong>ミス / スキップ</strong><span id="mist">0</span></div>
-      <div class="stat"><strong>WPM</strong><span id="wpm">0</span></div>
-      <div class="stat"><strong>残り時間</strong><span id="remain">--:--</span></div>
+    <div class="part-tabs" id="partTabs" style="display: none;">
+        <button class="part-tab" id="btn-P1" onclick="selectPart(1)">Part 1</button>
+        <button class="part-tab" id="btn-P2" onclick="selectPart(2)">Part 2</button>
+        <button class="part-tab" id="btn-P3" onclick="selectPart(3)">Part 3</button>
+        <button class="part-tab" id="btn-P4" onclick="selectPart(4)">Part 4</button>
     </div>
 
-    <div class="grid" style="margin-top:10px; grid-template-columns:repeat(4,1fr);">
-      <div>
-        <label>制限時間</label>
-        <select id="limit">
-          <option value="1">1分</option>
-          <option value="2" selected>2分</option>
-          <option value="5">5分</option>
-          <option value="0">無制限</option>
-        </select>
-      </div>
-      <div>
-        <label>音量</label>
-        <input id="volume" type="range" min="0" max="100" value="60"/>
-      </div>
-      <div style="display:flex;align-items:flex-end;">
-        <button id="start" class="primary">開始</button>
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:6px;">
-        <button id="reset" class="sub">リセット</button>
-        <button id="skip" class="warn">スキップ</button>
-      </div>
+    <div class="status-display">
+        <span id="selectionDisplay" class="alert-text">LessonとPartを選んでください</span>
     </div>
 
-    <div class="prompt" id="prompt">（ここにB列の問題が表示されます）</div>
-    <div class="hint" id="hint">（ここにC列の答えを入力してください）</div>
-    <input id="input" type="text" placeholder="ここに解答（C列の英語）を入力"
-           autocapitalize="off" autocorrect="off" spellcheck="false" disabled/>
-
-    <div id="flightWrap" class="flight-wrap" aria-label="Flight mini game">
-      <canvas id="flightCanvas" width="800" height="180"></canvas>
+    <div class="input-area">
+        <textarea id="studentInput" placeholder="ここに英語を入力してください..."></textarea>
     </div>
 
-    <div class="controls-row">
-      <label class="small"><input type="checkbox" id="showlog"> ログ表示</label>
-      <div class="small" id="feedback"></div>
+    <div class="btn-group">
+        <button class="main-btn btn-chatgpt" onclick="openChatGPT()">ChatGPTを開く</button>
+        <button class="main-btn btn-copy" onclick="copyToClipboard()">プロンプトをコピー</button>
     </div>
-    <div id="log" class="log"></div>
-
-    <div class="leaderboard">
-      <h3>今週のトップ10（この端末内ランキング） <span class="pill" id="weekKeyLabel"></span></h3>
-      <ol id="lbList"></ol>
-      <div class="muted">※同じPC/スマホ内だけに保存されます。クラス全体の共有ランキングは後述。</div>
-    </div>
-  </div>
-</main>
-
-<div id="overlay" class="overlay">
-  <div class="result-card">
-    <div class="result-badge" id="ovBadge">RESULT</div>
-    <div class="result-title" id="ovTitle">Great!</div>
-    <div class="result-detail" id="ovDetail"></div>
-
-    <div class="rubric" id="rubricBox"></div>
-
-    <div class="lb-in-overlay">
-      <h4>今週のトップ10</h4>
-      <ol id="lbListOverlay"></ol>
-    </div>
-
-    <div class="result-small" id="ovSmall"></div>
-    <button id="ovClose" class="result-close">閉じる</button>
-  </div>
+    
+    <p class="footer-note">
+        <strong>【スマホの方へ】</strong><br>
+        「ChatGPTを開く」でうまくいかない場合は、<br>
+        <strong>「プロンプトをコピー」</strong>を押してから、<br>
+        ChatGPTアプリを開いて貼り付けてください。
+    </p>
 </div>
 
 <script>
-  const DATA = [{"id": 1, "q": "[f       ] her advice　彼女の助言に従う", "a": "follow"}, {"id": 2, "q": "[c       ] the problem seriously　真剣にその問題を考える", "a": "consider"}, {"id": 3, "q": "[i       ] by 20%　20%増加する", "a": "increase"}, {"id": 4, "q": "[e       ] you to arrive soon　君がすぐ着くことを予期する", "a": "expect"}, {"id": 5, "q": "[d       ] to tell the truth　真実を語る決意をする", "a": "decide"}, {"id": 6, "q": "[d       ] a unique ability　特異な能力を発達させる", "a": "develop"}, {"id": 7, "q": "[p       ] him with information　彼に情報を与える", "a": "provide"}, {"id": 8, "q": "[c       ] to grow fast　急速に成長し続ける", "a": "continue"}, {"id": 9, "q": "The list [i       ] his name.　リストは彼の名前を含んでいる", "a": "includes"}, {"id": 10, "q": "[r       ] silent　黙ったままでいる", "a": "remain"}, {"id": 11, "q": "[r       ] the mountain top　山頂に達する", "a": "reach"}, {"id": 12, "q": "[a       ] him to go out　彼に外出を許可する", "a": "allow"}, {"id": 13, "q": "be [f       ] to work　働くよう強制される", "a": "forced"}, {"id": 14, "q": "[o       ] help to the poor　貧しい人に援助を申し出る", "a": "offer"}, {"id": 15, "q": "[r       ] the error　まちがいを悟る", "a": "realize"}, {"id": 16, "q": "[s       ] a new way　新しいやり方を提案する", "a": "suggest"}, {"id": 17, "q": "[r       ] more attention　もっと注意を必要とする", "a": "require"}, {"id": 18, "q": "[w       ] about money　お金のことを心配する", "a": "worry"}, {"id": 19, "q": "[w       ] where he has gone　彼はどこに行ったのかと思う", "a": "wonder"}, {"id": 20, "q": "The car [c       ] me $50,000.　その車には5万ドルかかった", "a": "cost"}, {"id": 21, "q": "[t       ] to get angry　腹を立てがちである", "a": "tend"}, {"id": 22, "q": "Everything [d       ] on him.　すべては彼しだいだ", "a": "depends"}, {"id": 23, "q": "[s       ] a room with a friend　友人と部屋を共有する", "a": "share"}, {"id": 24, "q": "[d       ] more freedom　もっと自由を要求する", "a": "demand"}, {"id": 25, "q": "[s       ] the president　大統領を支持する", "a": "support"}, {"id": 26, "q": "[h       ] many young people　多くの若者を雇う", "a": "hire"}, {"id": 27, "q": "[r       ] him as a friend　彼を友達とみなす", "a": "regard"}, {"id": 28, "q": "This story is [b       ] on fact.　この話は事実に基づいている", "a": "based"}, {"id": 29, "q": "[i       ] living conditions　生活状態を向上させる", "a": "improve"}, {"id": 30, "q": "[r       ] the importance　重要性を認める", "a": "recognize"}, {"id": 31, "q": "[n       ] the color change　色彩の変化に気づく", "a": "notice"}, {"id": 32, "q": "You are [s       ] to wear a seat belt.　シートベルトを締めることになっている", "a": "supposed"}, {"id": 33, "q": "[r       ] both hands　両手を上げる", "a": "raise"}, {"id": 34, "q": "[p       ] tea to coffee　コーヒーよりお茶を好む", "a": "prefer"}, {"id": 35, "q": "[c       ] up the patients　患者たちを元気づける", "a": "cheer"}, {"id": 36, "q": "[s       ] heavy damage　ひどい損害を受ける", "a": "suffer"}, {"id": 37, "q": "[d       ] the lost bag　なくしたバッグの特徴を言う", "a": "describe"}, {"id": 38, "q": "[p       ] him from sleeping　彼が眠るのをさまたげる", "a": "prevent"}, {"id": 39, "q": "[r       ] energy costs　エネルギー費を減らす", "a": "reduce"}, {"id": 40, "q": "[m       ] salt for sugar　塩を砂糖とまちがえる", "a": "mistake"}, {"id": 41, "q": "[p       ] a room for a guest　客のために部屋を準備する", "a": "prepare"}, {"id": 42, "q": "[e       ] children to read　子供に読書をすすめる", "a": "encourage"}, {"id": 43, "q": "[p       ] to be true　本当だとわかる", "a": "prove"}, {"id": 44, "q": "[t       ] him like a child　子供みたいに彼をあつかう", "a": "treat"}, {"id": 45, "q": "[e       ] a company　会社を設立する", "a": "establish"}, {"id": 46, "q": "stress-[r       ] illness　ストレスと関係のある病気", "a": "related"}, {"id": 47, "q": "[c       ] Japan with China　日本と中国を比較する", "a": "compare"}, {"id": 48, "q": "[s       ] the tablecloth　テーブルクロスを広げる", "a": "spread"}, {"id": 49, "q": "What does this word [r       ] to?　この語は何を指示するか", "a": "refer"}, {"id": 50, "q": "[s       ] the city with water　その都市に水を供給する", "a": "supply"}, {"id": 51, "q": "[g       ] useful knowledge　有益な知識を得る", "a": "gain"}, {"id": 52, "q": "[d       ] forests　森林を破壊する", "a": "destroy"}, {"id": 53, "q": "[a       ] the rule to every case　全ての場合に規則を当てはめる", "a": "apply"}, {"id": 54, "q": "[s       ] help from the police　警察に助けを求める", "a": "seek"}, {"id": 55, "q": "[s       ] for the stolen car　盗難車を捜す", "a": "search"}, {"id": 56, "q": "He [c       ] that he saw a UFO.　彼はUFOを見たと主張する", "a": "claims"}, {"id": 57, "q": "[d       ] a map　地図を描く", "a": "draw"}, {"id": 58, "q": "[r       ] to give up hope　希望を捨てるのを拒む", "a": "refuse"}, {"id": 59, "q": "[r       ] to questions　質問に答える", "a": "respond"}, {"id": 60, "q": "Never [m       ] it again.　二度とそのことを口にするな", "a": "mention"}, {"id": 61, "q": "[j       ] a person by his looks　人を外見で判断する", "a": "judge"}, {"id": 62, "q": "The plane is [a       ] Chicago.　飛行機はシカゴに接近している", "a": "approaching"}, {"id": 63, "q": "I [a       ] that I was wrong.　自分がまちがっていたと認める", "a": "admit"}, {"id": 64, "q": "[r       ] the mood of the times　時代の気分を反映する", "a": "reflect"}, {"id": 65, "q": "[p       ] the job　仕事を遂行する", "a": "perform"}, {"id": 66, "q": "a very [b       ] movie　すごく退屈な映画", "a": "boring"}, {"id": 67, "q": "[s       ] in the jungle　ジャングルで生き残る", "a": "survive"}, {"id": 68, "q": "Words [r       ] ideas.　言葉は考えを表す", "a": "represent"}, {"id": 69, "q": "[a       ] that he is right　彼は正しいと主張する", "a": "argue"}, {"id": 70, "q": "take freedom for [g       ]　自由を当然と考える", "a": "granted"}, {"id": 71, "q": "The data [i       ] that he is right.　データは彼が正しいことを示す", "a": "indicate"}, {"id": 72, "q": "The book [b       ] to Howard.　その本はハワードのものだ", "a": "belongs"}, {"id": 73, "q": "[a       ] a language 　言語を習得する", "a": "acquire"}, {"id": 74, "q": "[r       ] to his letter　彼の手紙に返事をする", "a": "reply"}, {"id": 75, "q": "[f       ] a large family　大勢の家族を養う", "a": "feed"}, {"id": 76, "q": "[e       ] from reality　現実から逃避する", "a": "escape"}, {"id": 77, "q": "[r       ] the old system　古い制度に取って代わる", "a": "replace"}, {"id": 78, "q": "[r       ] a surprising fact　驚くべき事実を明らかにする", "a": "reveal"}, {"id": 79, "q": "Japan is [s       ] by the sea.　日本は海に囲まれている", "a": "surrounded"}, {"id": 80, "q": "The job [s       ] you.　その仕事は君に合っている", "a": "suits"}, {"id": 81, "q": "the [e       ] population of Japan　日本の推定人口", "a": "estimated"}, {"id": 82, "q": "[a       ] at the Asian market　アジア市場をねらう", "a": "aim"}, {"id": 83, "q": "[e       ] money for the family　家族のためにお金をかせぐ", "a": "earn"}, {"id": 84, "q": "My memory began to [d       ].　記憶力が低下し始めた", "a": "decline"}, {"id": 85, "q": "can't [a       ] to buy a Ford　フォードの車を買う余裕がない", "a": "afford"}, {"id": 86, "q": "be [c       ] by her anger　彼女の怒りに当惑する", "a": "confused"}, {"id": 87, "q": "[g       ] from high school　高校を卒業する", "a": "graduate"}, {"id": 88, "q": "[v       ] from country to country　国によって変わる", "a": "vary"}, {"id": 89, "q": "[r       ] the cover　カバーを取り除く", "a": "remove"}, {"id": 90, "q": "[i       ] on going to France　フランスに行くと言い張る", "a": "insist"}, {"id": 91, "q": "[e       ] every record　あらゆる記録を調べる", "a": "examine"}, {"id": 92, "q": "[r       ] him of the promise 　彼に約束を思い出させる", "a": "remind"}, {"id": 93, "q": "[c       ] to world peace　世界平和に貢献する", "a": "contribute"}, {"id": 94, "q": "[w       ] him of the danger　彼に危険を警告する", "a": "warn"}, {"id": 95, "q": "[c       ] the computer to the Internet　コンピュータをインターネットにつなぐ", "a": "connect"}, {"id": 96, "q": "[m       ] him in power　力で彼に匹敵する", "a": "match"}, {"id": 97, "q": "[f       ] on the problem　その問題に焦点を合わせる", "a": "focus"}, {"id": 98, "q": "[r       ] the proposal　提案を拒否する", "a": "reject"}, {"id": 99, "q": "[c       ] him that it is true　それは本当だと彼に確信させる", "a": "convince"}, {"id": 100, "q": "Health is [a       ] with happiness.　健康は幸福と関連している", "a": "associated"}, {"id": 101, "q": "[r       ] into the hospital　病院へ急いで行く", "a": "rush"}, {"id": 102, "q": "[s       ] the need for information　情報の必要性を強調する", "a": "stress"}, {"id": 103, "q": "[a       ] his attention　彼の注意を引きつける", "a": "attract"}, {"id": 104, "q": "[r       ] on their power　彼らの力に頼る", "a": "rely"}, {"id": 105, "q": "[r       ] leaving home　家を出たのを後悔する", "a": "regret"}, {"id": 106, "q": "[a       ] a new system　新しいシステムを採用する", "a": "adopt"}, {"id": 107, "q": "[s       ] the bottle well　ビンをよく振る", "a": "shake"}, {"id": 108, "q": "[h       ] her feelings　彼女の気持ちを傷つける", "a": "hurt"}, {"id": 109, "q": "[o       ] a computer with a mouse　マウスでコンピュータを操作する", "a": "operate"}, {"id": 110, "q": "Exercise [e       ] life.　運動は寿命を延ばす", "a": "extends"}, {"id": 111, "q": "[b       ] others for the failure　失敗を他人のせいにする", "a": "blame"}, {"id": 112, "q": "The book [c       ] of six lessons.　その本は6課で構成されている", "a": "consists"}, {"id": 113, "q": "[p       ] them to go back　彼らを説得して帰らせる", "a": "persuade"}, {"id": 114, "q": "[a       ] her work　彼女の仕事に感嘆する", "a": "admire"}, {"id": 115, "q": "be [d       ] with the test results　試験の結果に失望する", "a": "disappointed"}, {"id": 116, "q": "[e       ] business overseas　海外へ事業を拡大する", "a": "expand"}, {"id": 117, "q": "[p       ] forests　森林を保護する", "a": "preserve"}, {"id": 118, "q": "[s       ] to get free　自由になろうともがく", "a": "struggle"}, {"id": 119, "q": "[a       ] the meeting　会議の手はずを整える", "a": "arrange"}, {"id": 120, "q": "[d       ] his sleep　彼の睡眠をさまたげる", "a": "disturb"}, {"id": 121, "q": "[e       ] foreign workers　外国人労働者を雇う", "a": "employ"}, {"id": 122, "q": "[e       ] in volunteer activities　ボランティア活動に従事する", "a": "engage"}, {"id": 123, "q": "an [a       ] pet　捨てられたペット", "a": "abandoned"}, {"id": 124, "q": "[d       ] prices　価格を示す", "a": "display"}, {"id": 125, "q": "[e       ] many difficulties　数々の困難に出会う", "a": "encounter"}, {"id": 126, "q": "[a       ] students with jokes　冗談で学生を笑わせる", "a": "amuse"}, {"id": 127, "q": "Sorry to [b       ] you, but …　おじゃましてすみませんが…", "a": "bother"}, {"id": 128, "q": "[c       ] on what he is saying　彼の話に集中する", "a": "concentrate"}, {"id": 129, "q": "[a       ] to a new culture　新しい文化に適応する", "a": "adapt"}, {"id": 130, "q": "be [p       ] by the problem　その問題に頭を悩ませる", "a": "puzzled"}, {"id": 131, "q": "[a       ] to his feelings　彼の感情に訴えかける", "a": "appeal"}, {"id": 132, "q": "[c       ] song and dance　歌と踊りを組み合わせる", "a": "combine"}, {"id": 133, "q": "[d       ] his arrival　彼の到着を遅らせる", "a": "delay"}, {"id": 134, "q": "[r       ] the car　車を修理する", "a": "repair"}, {"id": 135, "q": "a [f       ] story　夢中にさせる物語", "a": "fascinating"}, {"id": 136, "q": "[P       ] me.　ごめんなさい", "a": "Pardon"}, {"id": 137, "q": "[i       ] food from abroad　海外から食料を輸入する", "a": "import"}, {"id": 138, "q": "[r       ] that he is kind　彼は親切だと述べる", "a": "remark"}, {"id": 139, "q": "[r       ] a room at a hotel　ホテルの部屋を予約する", "a": "reserve"}, {"id": 140, "q": "at an [a       ] speed　驚異的な速さで", "a": "amazing"}, {"id": 141, "q": "[f       ] experiences　ぞっとするような経験", "a": "frightening"}, {"id": 142, "q": "[r       ] him from work　仕事から彼を解放する", "a": "release"}, {"id": 143, "q": "[r       ] an apartment　アパートを借りる", "a": "rent"}, {"id": 144, "q": "[r       ] from illness　病気から回復する", "a": "recover"}, {"id": 145, "q": "I [s       ] that he is a spy.　私は彼がスパイではないかと思う", "a": "suspect"}, {"id": 146, "q": "[d       ] a message to a friend　友人に伝言を渡す", "a": "deliver"}, {"id": 147, "q": "[i       ] people by their eyes　目で人の本人確認をする", "a": "identify"}, {"id": 148, "q": "The office is [l       ] in the area.　オフィスはその地域にある", "a": "located"}, {"id": 149, "q": "a car [m       ] company　車を製造する会社", "a": "manufacturing"}, {"id": 150, "q": "[o       ] a high position　高い地位を占める", "a": "occupy"}, {"id": 151, "q": "[o       ] a house　家を所有している", "a": "own"}, {"id": 152, "q": "be [e       ] to danger　危険にさらされる", "a": "exposed"}, {"id": 153, "q": "[t       ] a novel into English　小説を英語に翻訳する", "a": "translate"}, {"id": 154, "q": "[c       ] him of his illness　彼の病気を治す", "a": "cure"}, {"id": 155, "q": "[p       ] danger　危険に気づく", "a": "perceive"}, {"id": 156, "q": "[a       ] to a new school　新しい学校に慣れる", "a": "adjust"}, {"id": 157, "q": "be [a       ] by the noise　その音にぎょっとする", "a": "alarmed"}, {"id": 158, "q": "[a       ] him in his work　彼の仕事を手伝う", "a": "assist"}, {"id": 159, "q": "a [f       ] stream　凍った小川", "a": "frozen"}, {"id": 160, "q": "[s       ] the party　パーティを台無しにする", "a": "spoil"}, {"id": 161, "q": "[s       ] gears　ギアを変える", "a": "shift"}, {"id": 162, "q": "be [e       ] by the mistake　そのまちがいが恥ずかしい", "a": "embarrassed"}, {"id": 163, "q": "[a       ] of their marriage　2人の結婚を承認する", "a": "approve"}, {"id": 164, "q": "[w       ] 65 kilograms　65キロの重さがある", "a": "weigh"}, {"id": 165, "q": "[s       ] my legs　足を広げる", "a": "stretch"}, {"id": 166, "q": "[p       ] in the meeting　会議に参加する", "a": "participate"}, {"id": 167, "q": "[e       ] Picasso's works　ピカソの作品を展示する", "a": "exhibit"}, {"id": 168, "q": "I [o       ] my success to you.　私の成功はあなたのおかげだ", "a": "owe"}, {"id": 169, "q": "[c       ] his birthday　彼の誕生日を祝う", "a": "celebrate"}, {"id": 170, "q": "trees [d       ] with lights　電球で飾られた木々", "a": "decorated"}, {"id": 171, "q": "[f       ] him for being late　彼の遅刻を許す", "a": "forgive"}, {"id": 172, "q": "be [s       ] on the bench　ベンチで座っている", "a": "seated"}, {"id": 173, "q": "be [i       ] in the accident　その事故で負傷する", "a": "injured"}, {"id": 174, "q": "[s       ] a wedding dress　ウエディングドレスを縫う", "a": "sew"}, {"id": 175, "q": "the [r       ] of the test　テストの結果", "a": "result"}, {"id": 176, "q": "[f       ] of human language　人類の言語の特徴", "a": "features"}, {"id": 177, "q": "the problems of modern [s       ]　現代社会の問題", "a": "society"}, {"id": 178, "q": "a water [w       ]　水車", "a": "wheel"}, {"id": 179, "q": "put a high [v       ] on education　教育に高い価値をおく", "a": "value"}, {"id": 180, "q": "the greenhouse [e       ] of CO2　二酸化炭素の温室効果", "a": "effect"}, {"id": 181, "q": "[i       ] in society　社会の中の個人", "a": "individuals"}, {"id": 182, "q": "have a bad [i       ] on children　子供に悪い影響を与える", "a": "influence"}, {"id": 183, "q": "charge a [f       ] for the service　サービス料を請求する", "a": "fee"}, {"id": 184, "q": "at the [r       ] of 40% a year　年40%の割合で", "a": "rate"}, {"id": 185, "q": "a [s       ] of spring　春のきざし", "a": "sign"}, {"id": 186, "q": "water and gas [s       ]　水道とガスの事業", "a": "service"}, {"id": 187, "q": "[a       ] in technology　科学技術の進歩", "a": "advances"}, {"id": 188, "q": "[L       ] is the best medicine.　笑いは最高の良薬だ", "a": "Laughter"}, {"id": 189, "q": "produce new [m       ]　新しい物質を作る", "a": "materials"}, {"id": 190, "q": "a center of heavy [i       ]　重工業の中心地", "a": "industry"}, {"id": 191, "q": "an [a       ] to break the record　記録を破ろうとする試み", "a": "attempt"}, {"id": 192, "q": "US [t       ] with France　アメリカとフランスの貿易", "a": "trade"}, {"id": 193, "q": "You've made [p       ] in English.　君の英語は進歩した", "a": "progress"}, {"id": 194, "q": "make an [e       ] to leave early　早く帰るための言い訳をする", "a": "excuse"}, {"id": 195, "q": "the [c       ] of tipping　チップを払う習慣", "a": "custom"}, {"id": 196, "q": "Read the following [p       ].　次の一節を読みなさい", "a": "passage"}, {"id": 197, "q": "the market [e       ]　市場経済", "a": "economy"}, {"id": 198, "q": "the [t       ] of a lion　ライオンの足跡", "a": "tracks"}, {"id": 199, "q": "use public [t       ]　公共交通機関を使う", "a": "transportation"}, {"id": 200, "q": "a government [o       ]　政府の役人", "a": "official"}, {"id": 201, "q": "love at first [s       ]　一目ぼれ", "a": "sight"}, {"id": 202, "q": "a [t       ] of lemon　レモンの味", "a": "taste"}, {"id": 203, "q": "a wide [r       ] of information　広範囲の情報", "a": "range"}, {"id": 204, "q": "make an [a       ] with the doctor　医者に予約する", "a": "appointment"}, {"id": 205, "q": "a doctor and a [p       ]　医者と患者", "a": "patient"}, {"id": 206, "q": "a business [p       ]　事業計画", "a": "project"}, {"id": 207, "q": "Would you do me a [f       ]?　頼みをきいてもらえませんか", "a": "favor"}, {"id": 208, "q": "differ in [a       ]　外見が違う", "a": "appearance"}, {"id": 209, "q": "run the [r       ] of losing money　お金を失う危険を冒す", "a": "risk"}, {"id": 210, "q": "costs and [b       ] of the business　仕事のコストと利益", "a": "benefits"}, {"id": 211, "q": "[r       ] of New York　ニューヨークの住民", "a": "residents"}, {"id": 212, "q": "their [r       ] and friends　彼らの親戚と友達", "a": "relatives"}, {"id": 213, "q": "a mountain [r       ]　山岳地方", "a": "region"}, {"id": 214, "q": "unique [c       ]　ユニークな特徴", "a": "characteristics"}, {"id": 215, "q": "feel a sharp [p       ]　鋭い痛みを感じる", "a": "pain"}, {"id": 216, "q": "a pair of identical [t       ]　一組の一卵性双生児", "a": "twins"}, {"id": 217, "q": "on special [o       ]　特別な場合に", "a": "occasions"}, {"id": 218, "q": "the [p       ] of free trade　自由貿易の原則", "a": "principle"}, {"id": 219, "q": "the history [d       ]　歴史学科", "a": "department"}, {"id": 220, "q": "It is my [d       ] to help you.　君を助けるのが私の義務だ", "a": "duty"}, {"id": 221, "q": "the [s       ] of the accident　事故の現場", "a": "scene"}, {"id": 222, "q": "avoid traffic [j       ]　交通渋滞を避ける", "a": "jams"}, {"id": 223, "q": "the [s       ] of fair play　フェアプレーの精神", "a": "spirit"}, {"id": 224, "q": "the [m       ] of communication　コミュニケーションの手段", "a": "medium"}, {"id": 225, "q": "[m       ] production　大量生産", "a": "mass"}, {"id": 226, "q": "gather a large [a       ]　大勢の観客を集める", "a": "audience"}, {"id": 227, "q": "the most important [e       ]　最も重要な要素", "a": "element"}, {"id": 228, "q": "global [c       ] change　地球規模の気候変動", "a": "climate"}, {"id": 229, "q": "the French [R       ]　フランス革命", "a": "Revolution"}, {"id": 230, "q": "the first [q       ] of this century　今世紀の最初の4分の1", "a": "quarter"}, {"id": 231, "q": "a room with little [f       ]　家具の少ない部屋", "a": "furniture"}, {"id": 232, "q": "the human [b       ]　人間の脳", "a": "brain"}, {"id": 233, "q": "CO2 in the earth's [a       ]　地球の大気中の二酸化炭素", "a": "atmosphere"}, {"id": 234, "q": "private [p       ]　私有財産", "a": "property"}, {"id": 235, "q": "a [r       ] for hard work　努力の報酬", "a": "reward"}, {"id": 236, "q": "national [s       ]　国家の安全保障", "a": "security"}, {"id": 237, "q": "give a cry of [d       ]　喜びの声をあげる", "a": "delight"}, {"id": 238, "q": "a deserted road in the [d       ]　砂漠の人影のない道", "a": "desert"}, {"id": 239, "q": "people from different [b       ]　経歴の違う人々", "a": "backgrounds"}, {"id": 240, "q": "a [t       ] toward fewer children　少子化の傾向", "a": "trend"}, {"id": 241, "q": "get 20% of the [v       ]　20％の票を得る", "a": "vote"}, {"id": 242, "q": "a negative [i       ] on the environment　環境に対する悪い影響", "a": "impact"}, {"id": 243, "q": "educational [i       ]　教育機関", "a": "institutions"}, {"id": 244, "q": "social [i       ] with others　他人との社会的交流", "a": "interaction"}, {"id": 245, "q": "an [a       ] to oil　石油の代わりになるもの", "a": "alternative"}, {"id": 246, "q": "do no [h       ] to children　子供に害を与えない", "a": "harm"}, {"id": 247, "q": "a travel [a       ]　旅行代理店", "a": "agency"}, {"id": 248, "q": "people's great [c       ] to learn　人間のすばらしい学習能力", "a": "capacity"}, {"id": 249, "q": "the Italian [m       ]　イタリアの大臣", "a": "minister"}, {"id": 250, "q": "a hospital [v       ]　病院で働くボランティア", "a": "volunteer"}, {"id": 251, "q": "have [a       ] to the Internet　インターネットを利用できる", "a": "access"}, {"id": 252, "q": "large [q       ] of data　ぼう大な量のデータ", "a": "quantities"}, {"id": 253, "q": "a [b       ] of science　科学の一分野", "a": "branch"}, {"id": 254, "q": "a [c       ] language 　共通の言語", "a": "common"}, {"id": 255, "q": "a [r       ] sketch　大ざっぱなスケッチ", "a": "rough"}, {"id": 256, "q": "He is [l       ] to win.　彼が勝つ可能性が高い", "a": "likely"}, {"id": 257, "q": "[s       ] social problems　深刻な社会問題", "a": "serious"}, {"id": 258, "q": "a [p       ] character　特有の性質", "a": "particular"}, {"id": 259, "q": "information [a       ] to everyone　みんなが利用できる情報", "a": "available"}, {"id": 260, "q": "[b       ] children　二言語使用の子どもたち", "a": "bilingual"}, {"id": 261, "q": "I am [r       ] to start.　出発の用意ができている", "a": "ready"}, {"id": 262, "q": "the [c       ] answer　正しい答え", "a": "correct"}, {"id": 263, "q": "be [f       ] with Japanese culture　日本の文化にくわしい", "a": "familiar"}, {"id": 264, "q": "[p       ] beauty　肉体美", "a": "physical"}, {"id": 265, "q": "The book is [w       ] reading.　その本は読む価値がある", "a": "worth"}, {"id": 266, "q": "be [i       ] in the accident　事故に巻き込まれている", "a": "involved"}, {"id": 267, "q": "I had a [f       ] time.　私はすばらしい時をすごした", "a": "fantastic"}, {"id": 268, "q": "her [p       ] life　彼女の私生活", "a": "private"}, {"id": 269, "q": "an [o       ] mistake　明白なまちがい", "a": "obvious"}, {"id": 270, "q": "a [n       ] language　母語", "a": "native"}, {"id": 271, "q": "a [c       ] system　複雑なシステム", "a": "complex"}, {"id": 272, "q": "I'm [w       ] to pay for good food.　おいしいものにお金を払ってもかまわない", "a": "willing"}, {"id": 273, "q": "the [c       ] international situation　今日の国際状況", "a": "current"}, {"id": 274, "q": "[m       ] workers　男性の労働者", "a": "male"}, {"id": 275, "q": "the [p       ] use of words　言葉の適切な使い方", "a": "proper"}, {"id": 276, "q": "He is [c       ] of doing the job.　彼はその仕事をする能力がある", "a": "capable"}, {"id": 277, "q": "He is [i       ] of his parents.　彼は親から独立している", "a": "independent"}, {"id": 278, "q": "[p       ] thinking　積極的な考え方", "a": "positive"}, {"id": 279, "q": "a [p       ] experience　楽しい経験", "a": "pleasant"}, {"id": 280, "q": "a [s       ] difference　重要な違い", "a": "significant"}, {"id": 281, "q": "the [f       ] president　前大統領", "a": "former"}, {"id": 282, "q": "a [c       ] reaction　化学反応", "a": "chemical"}, {"id": 283, "q": "be [u       ] by the accident　事故で動揺している", "a": "upset"}, {"id": 284, "q": "from the [p       ] year　前の年から", "a": "previous"}, {"id": 285, "q": "keep [c       ]　冷静でいる", "a": "calm"}, {"id": 286, "q": "a [s       ] individual　特定の個人", "a": "specific"}, {"id": 287, "q": "health-[c       ] Americans　健康を意識するアメリカ人", "a": "conscious"}, {"id": 288, "q": "be [s       ] to others　他の人よりすぐれている", "a": "superior"}, {"id": 289, "q": "an [e       ] use of energy　効率のよいエネルギーの使い方", "a": "efficient"}, {"id": 290, "q": "[f       ] human rights　基本的人権", "a": "fundamental"}, {"id": 291, "q": "a [n       ] street　狭い通り", "a": "narrow"}, {"id": 292, "q": "a [r       ] explanation　理にかなった説明", "a": "reasonable"}, {"id": 293, "q": "feel [n       ] about the future　将来のことで不安になる", "a": "nervous"}, {"id": 294, "q": "The brothers look [a       ].　その兄弟は似ている", "a": "alike"}, {"id": 295, "q": "[d       ] violence　家庭内暴力", "a": "domestic"}, {"id": 296, "q": "a [n       ] answer　否定的な答", "a": "negative"}, {"id": 297, "q": "make a [m       ] judgment　道徳的な判断をする", "a": "moral"}, {"id": 298, "q": "be [e       ] to study in the US　アメリカ留学を熱望する", "a": "eager"}, {"id": 299, "q": "the brain's [r       ] ability　脳のすばらしい能力", "a": "remarkable"}, {"id": 300, "q": "drive away [e       ] spirits　悪い霊を追い払う", "a": "evil"}, {"id": 301, "q": "stay [a       ] all night　夜通し目が覚めている", "a": "awake"}, {"id": 302, "q": "his [a       ] parents　彼の年老いた父母", "a": "aged"}, {"id": 303, "q": "I am [a       ] about your health.　君の健康が心配だ", "a": "anxious"}, {"id": 304, "q": "a [t       ] boxer　たくましいボクサー", "a": "tough"}, {"id": 305, "q": "[n       ] energy　原子力エネルギー", "a": "nuclear"}, {"id": 306, "q": "the British [l       ] system　イギリスの法律の制度", "a": "legal"}, {"id": 307, "q": "be [c       ] about everything　何にでも好奇心を持つ", "a": "curious"}, {"id": 308, "q": "[c       ] rights　市民権", "a": "civil"}, {"id": 309, "q": "according to a [r       ] study　最近の研究によると", "a": "recent"}, {"id": 310, "q": "a [s       ] member of the club　クラブの先輩の部員", "a": "senior"}, {"id": 311, "q": "Soon [a       ], he left.　その後すぐ彼は去った", "a": "afterward"}, {"id": 312, "q": "[n       ] 30 years ago　30年近く前に", "a": "nearly"}, {"id": 313, "q": "The car is small and [t       ] cheap.　その車は小さい。それゆえ安い。", "a": "therefore"}, {"id": 314, "q": "at [e       ] the same time　ぴったり同時に", "a": "exactly"}, {"id": 315, "q": "He will [p       ] come.　ひょっとすると彼は来るかもしれない", "a": "possibly"}, {"id": 316, "q": "[c       ] to expectations　予想に反して", "a": "contrary"}, {"id": 317, "q": "I [o       ] go to the theater.　私はたまに劇場に行く", "a": "occasionally"}, {"id": 318, "q": "[S       ] I feel lonely.　なぜか寂しい", "a": "Somehow"}, {"id": 319, "q": "I [s       ] see him.　彼に会うことはめったにない", "a": "seldom"}, {"id": 320, "q": "This is smaller and [t       ] cheaper.　この方が小さく，したがって安い", "a": "thus"}, {"id": 321, "q": "people [t       ] the world　世界中の人々", "a": "throughout"}, {"id": 322, "q": "[U       ] my wife, I get up early.　妻と違って私は早起きだ", "a": "Unlike"}, {"id": 323, "q": "[B       ] being rich, he is kind.　彼は金持ちの上にやさしい", "a": "Besides"}, {"id": 324, "q": "It's [b       ] my understanding.　私の理解をこえている", "a": "beyond"}, {"id": 325, "q": "[w       ] a mile of the station　駅から1マイル以内で", "a": "within"}, {"id": 326, "q": "have neither time [n       ] money　時間もお金もない", "a": "nor"}, {"id": 327, "q": "I'll leave tomorrow [u       ] it rains.　明日雨が降らない限り出発する", "a": "unless"}, {"id": 328, "q": "work every day [e       ] Sunday　日曜以外毎日働く", "a": "except"}, {"id": 329, "q": "You [o       ] to see a doctor.　君は医者に診てもらうべきだ", "a": "ought"}, {"id": 330, "q": "in [s       ] of difficulties　困難にもかかわらず", "a": "spite"}, {"id": 331, "q": "I don't know [w       ] it is true or not.　本当かどうかわからない", "a": "whether"}, {"id": 332, "q": "[e       ] why he was late　彼がなぜ遅れたかを説明する", "a": "explain"}, {"id": 333, "q": "[a       ] the truth as it is　ありのまま真実を受け入れる", "a": "accept"}, {"id": 334, "q": "[p       ] enough food　十分な食料を生産する", "a": "produce"}, {"id": 335, "q": "Does God really [e       ]?　神は本当に存在するのか", "a": "exist"}, {"id": 336, "q": "[e       ] my feelings　私の気持ちを表現する", "a": "express"}, {"id": 337, "q": "[a       ] some milk to the soup　スープにミルクを加える", "a": "add"}, {"id": 338, "q": "[a       ] making mistakes　まちがいを犯すのを避ける", "a": "avoid"}, {"id": 339, "q": "[m       ] Mary　メアリと結婚する", "a": "marry"}, {"id": 340, "q": "[p       ] children from danger　危険から子供たちを守る", "a": "protect"}, {"id": 341, "q": "Alcohol [a       ] the brain.　アルコールは脳に影響する", "a": "affects"}, {"id": 342, "q": "[d       ] your future　君の未来を決定する", "a": "determine"}, {"id": 343, "q": "[s       ] the problem　問題を解決する", "a": "solve"}, {"id": 344, "q": "Vegetables [c       ] a lot of water.　野菜はたくさんの水を含んでいる", "a": "contain"}, {"id": 345, "q": "[d       ] the problem with him　彼とその問題を議論する", "a": "discuss"}, {"id": 346, "q": "[i       ] the doctor's advice　医者の忠告を無視する", "a": "ignore"}, {"id": 347, "q": "[g       ] how old she is　彼女の年を推測する", "a": "guess"}, {"id": 348, "q": "[e       ] yen for dollars　円をドルに交換する", "a": "exchange"}, {"id": 349, "q": "[s       ] the needs of students　学生の要求を満たす", "a": "satisfy"}, {"id": 350, "q": "[c       ] about the noise　騒音のことで苦情を言う", "a": "complain"}, {"id": 351, "q": "finally [a       ] the goal　ついに目標を達成する", "a": "achieve"}, {"id": 352, "q": "[e       ] people to live longer　人々の長寿を可能にする", "a": "enable"}, {"id": 353, "q": "[i       ] to live in America　アメリカに住むつもりだ", "a": "intend"}, {"id": 354, "q": "[o       ] information about him　彼に関する情報を得る", "a": "obtain"}, {"id": 355, "q": "[d       ] the cake into six pieces　ケーキを6個に分割する", "a": "divide"}, {"id": 356, "q": "The noise [a       ] me.　その音が私をいらだたせる", "a": "annoys"}, {"id": 357, "q": "My opinion [d       ] from hers.　私の考えは彼女と異なる", "a": "differs"}, {"id": 358, "q": "how to [e       ] children　子供を教育する方法", "a": "educate"}, {"id": 359, "q": "[b       ] a book from a friend 　友達から本を借りる", "a": "borrow"}, {"id": 360, "q": "[i       ] a time machine　タイムマシンを発明する", "a": "invent"}, {"id": 361, "q": "[p       ] economic growth　経済成長を促進する", "a": "promote"}, {"id": 362, "q": "[a       ] him to eat vegetables　野菜を食べるよう彼に忠告する", "a": "advise"}, {"id": 363, "q": "[r       ] from work at sixty　60で仕事を辞める", "a": "retire"}, {"id": 364, "q": "[p       ] him to go out　彼に外出することを許す", "a": "permit"}, {"id": 365, "q": "[r       ] this book to you　あなたにこの本を勧める", "a": "recommend"}, {"id": 366, "q": "[a       ] to him for being late　遅れたことを彼に謝る", "a": "apologize"}, {"id": 367, "q": "[i       ] him of his son's success　息子の成功を彼に知らせる", "a": "inform"}, {"id": 368, "q": "[o       ] their marriage　彼らの結婚に反対する", "a": "oppose"}, {"id": 369, "q": "[t       ] an old friend　古い友達を信用する", "a": "trust"}, {"id": 370, "q": "[s       ] the best answer　最良の答えを選ぶ", "a": "select"}, {"id": 371, "q": "[p       ] him for his work　仕事のことで彼をほめる", "a": "praise"}, {"id": 372, "q": "how to [h       ] problems　どう問題に対処するべきか", "a": "handle"}, {"id": 373, "q": "[p       ] a new way　新しいやり方を提案する", "a": "propose"}, {"id": 374, "q": "[b       ] fresh air　新鮮な空気を呼吸する", "a": "breathe"}, {"id": 375, "q": "[c       ] him for being late　遅刻したことで彼を非難する", "a": "criticize"}, {"id": 376, "q": "[o       ] difficulties　困難に打ち勝つ", "a": "overcome"}, {"id": 377, "q": "[p       ] great power　大きな力を持っている", "a": "possess"}, {"id": 378, "q": "[p       ] the future 　未来を予言する", "a": "predict"}, {"id": 379, "q": "[p       ] a book　本を出版する", "a": "publish"}, {"id": 380, "q": "leaves [f       ] on the river　川面に浮かぶ木の葉", "a": "floating"}, {"id": 381, "q": "[r       ] the good old days　古き良き時代を思い出す", "a": "recall"}, {"id": 382, "q": "[e       ] the Amazon River　アマゾン川を探検する", "a": "explore"}, {"id": 383, "q": "[p       ] to be asleep　眠っているふりをする", "a": "pretend"}, {"id": 384, "q": "[a       ] a lot of water　大量の水を吸収する", "a": "absorb"}, {"id": 385, "q": "He [r       ] his father.　彼は父親に似ている", "a": "resembles"}, {"id": 386, "q": "[t       ] the letter to pieces 　ずたずたに手紙を引き裂く", "a": "tear"}, {"id": 387, "q": "[c       ] a lot of energy　多量のエネルギーを消費する", "a": "consume"}, {"id": 388, "q": "[c       ] with him for the gold medal　金メダルを目指して彼と競争する", "a": "compete"}, {"id": 389, "q": "[q       ] smoking　タバコをやめる", "a": "quit"}, {"id": 390, "q": "[a       ] a new plan　新しい計画を発表する", "a": "announce"}, {"id": 391, "q": "[r       ] quickly to light　光にすばやく反応する", "a": "react"}, {"id": 392, "q": "[w       ] around the streets　街を歩き回る", "a": "wander"}, {"id": 393, "q": "Don't [t       ] while driving.　運転中にメールを送るな", "a": "text"}, {"id": 394, "q": "[g       ] electricity　電力を生み出す", "a": "generate"}, {"id": 395, "q": "[s       ] 10 goals　10点を取る", "a": "score"}, {"id": 396, "q": "the Japanese [g       ]　日本政府", "a": "government"}, {"id": 397, "q": "have little [k       ] of English　英語の知識がほとんどない", "a": "knowledge"}, {"id": 398, "q": "the Asian [n       ]　アジアの諸国", "a": "nations"}, {"id": 399, "q": "make an [e       ] to help him　彼を助けようと努力する", "a": "effort"}, {"id": 400, "q": "the Cold War [p       ]　冷戦時代", "a": "period"}, {"id": 401, "q": "[p       ] growth　人口の増加", "a": "population"}, {"id": 402, "q": "for peaceful [p       ]　平和的な目的で", "a": "purposes"}, {"id": 403, "q": "study human [b       ]　人間の行動を研究する", "a": "behavior"}, {"id": 404, "q": "[l       ] of food　食糧不足", "a": "lack"}, {"id": 405, "q": "learn basic [s       ]　基本的な技術を学ぶ", "a": "skills"}, {"id": 406, "q": "the sound [q       ] of the CD　CDの音質", "a": "quality"}, {"id": 407, "q": "the natural [e       ]　自然環境", "a": "environment"}, {"id": 408, "q": "play an important [r       ]　重要な役割を果たす", "a": "role"}, {"id": 409, "q": "a positive [a       ] toward life　人生に対する前向きな態度", "a": "attitude"}, {"id": 410, "q": "the [a       ] of this passage　この文章の筆者", "a": "author"}, {"id": 411, "q": "scientific [r       ]　科学的な研究", "a": "research"}, {"id": 412, "q": "an [o       ] to talk to her　彼女と話す機会", "a": "opportunity"}, {"id": 413, "q": "a [s       ] of information　情報源", "a": "source"}, {"id": 414, "q": "[c       ] dioxide　二酸化炭素", "a": "carbon"}, {"id": 415, "q": "the [s       ] of her nose　彼女の鼻の形", "a": "shape"}, {"id": 416, "q": "the [a       ] of membership　会員の利点", "a": "advantage"}, {"id": 417, "q": "a [m       ] of teaching English　英語を教える方法", "a": "method"}, {"id": 418, "q": "be in the [h       ] of reading in bed　ベッドで本を読む習慣がある", "a": "habit"}, {"id": 419, "q": "remember the [d       ] of the story　話を細部まで覚えている", "a": "details"}, {"id": 420, "q": "within walking [d       ] of my house　私の家から歩ける距離で", "a": "distance"}, {"id": 421, "q": "A large [c       ] gathered.　大群衆が集まった", "a": "crowd"}, {"id": 422, "q": "the best known [i       ]　最もよく知られた例", "a": "instance"}, {"id": 423, "q": "a strong [d       ] to be a singer　歌手になりたいという強い願望", "a": "desire"}, {"id": 424, "q": "the [s       ] of living　生活水準", "a": "standard"}, {"id": 425, "q": "a difficult [t       ]　難しい仕事", "a": "task"}, {"id": 426, "q": "for future [g       ]　未来の世代のために", "a": "generations"}, {"id": 427, "q": "take [r       ] for the accident　事故の責任をとる", "a": "responsibility"}, {"id": 428, "q": "[e       ] with animals　動物を用いる実験", "a": "experiments"}, {"id": 429, "q": "a professional [a       ]　プロの運動選手", "a": "athlete"}, {"id": 430, "q": "only a [d       ] ago　ほんの10年前に", "a": "decade"}, {"id": 431, "q": "a [l       ] of $5,000　5,000ドルの損失", "a": "loss"}, {"id": 432, "q": "have a high [f       ]　高熱を出している", "a": "fever"}, {"id": 433, "q": "the [t       ] of relativity　相対性理論", "a": "theory"}, {"id": 434, "q": "read the following [s       ]　次の記述を読む", "a": "statement"}, {"id": 435, "q": "a [p       ] at Boston University　ボストン大学の教授", "a": "professor"}, {"id": 436, "q": "the basic [f       ] of a computer　コンピュータの基本的機能", "a": "functions"}, {"id": 437, "q": "the [s       ] of the earth　地球の表面", "a": "surface"}, {"id": 438, "q": "put the letter in a pink [e       ]　ピンクの封筒に手紙を入れる", "a": "envelope"}, {"id": 439, "q": "an international [o       ]　国際的な組織", "a": "organization"}, {"id": 440, "q": "Japan's foreign [p       ]　日本の外交政策", "a": "policy"}, {"id": 441, "q": "natural [r       ]　天然資源", "a": "resources"}, {"id": 442, "q": "the [c       ] between light and shadow　光と影の対比", "a": "contrast"}, {"id": 443, "q": "a [f       ] of information　情報の洪水", "a": "flood"}, {"id": 444, "q": "look for a [m       ]　連れ合いを探す", "a": "mate"}, {"id": 445, "q": "buying and selling [g       ]　商品の売り買い", "a": "goods"}, {"id": 446, "q": "humans and other [c       ]　人間と他の動物", "a": "creatures"}, {"id": 447, "q": "changes in social [s       ]　社会構造の変化", "a": "structure"}, {"id": 448, "q": "history and [t       ]　歴史と伝統", "a": "tradition"}, {"id": 449, "q": "lose [w       ]　体重を減らす", "a": "weight"}, {"id": 450, "q": "give money to [c       ]　慈善のために寄付する", "a": "charity"}, {"id": 451, "q": "the average American [c       ]　平均的アメリカ市民", "a": "citizen"}, {"id": 452, "q": "make a good [i       ] on him　彼によい印象を与える", "a": "impression"}, {"id": 453, "q": "a popular [c       ] character　人気マンガのキャラクター", "a": "cartoon"}, {"id": 454, "q": "a long [c       ] as an actress　女優としての長い経歴", "a": "career"}, {"id": 455, "q": "a [s       ] for a new hotel　新しいホテルの用地", "a": "site"}, {"id": 456, "q": "train [p       ]　列車の乗客", "a": "passengers"}, {"id": 457, "q": "[v       ] on TV　テレビにおける暴力", "a": "violence"}, {"id": 458, "q": "low-[i       ] families　低所得の家族", "a": "income"}, {"id": 459, "q": "the average [t       ] in Paris　パリの平均気温", "a": "temperature"}, {"id": 460, "q": "the [m       ] of students　大多数の学生", "a": "majority"}, {"id": 461, "q": "the [o       ] of language 　言語の起源", "a": "origin"}, {"id": 462, "q": "study English [l       ]　英文学を研究する", "a": "literature"}, {"id": 463, "q": "office [e       ]　オフィスの設備", "a": "equipment"}, {"id": 464, "q": "talk to a [s       ]　見知らぬ人に話しかける", "a": "stranger"}, {"id": 465, "q": "[s       ] and weakness　強さと弱さ", "a": "strength"}, {"id": 466, "q": "the [p       ] Earth　地球という惑星", "a": "planet"}, {"id": 467, "q": "Truth is stranger than [f       ].　事実は小説よりも奇なり", "a": "fiction"}, {"id": 468, "q": "science and [r       ]　科学と宗教", "a": "religion"}, {"id": 469, "q": "environmental [p       ]　環境汚染", "a": "pollution"}, {"id": 470, "q": "[w       ] and power　富と権力", "a": "wealth"}, {"id": 471, "q": "sign an official [d       ]　公文書にサインする", "a": "document"}, {"id": 472, "q": "make a $2 million [p       ]　200万ドルのもうけを得る", "a": "profit"}, {"id": 473, "q": "the [t       ] of film-making　映画作りの技術", "a": "technique"}, {"id": 474, "q": "express [e       ]　感情を表現する", "a": "emotions"}, {"id": 475, "q": "a natural [p       ]　自然現象", "a": "phenomenon"}, {"id": 476, "q": "a [h       ] movie　恐怖映画", "a": "horror"}, {"id": 477, "q": "climb a [l       ]　はしごを登る", "a": "ladder"}, {"id": 478, "q": "8 [b       ] people　八十億の人々", "a": "billion"}, {"id": 479, "q": "the social [s       ] of women　女性の社会的地位", "a": "status"}, {"id": 480, "q": "modern [y       ]　現代の若者", "a": "youth"}, {"id": 481, "q": "have [c       ] in my ability　自分の能力に自信がある", "a": "confidence"}, {"id": 482, "q": "the [e       ] of the Pacific Ocean　太平洋の周辺", "a": "edge"}, {"id": 483, "q": "[h       ] goods　家庭用品", "a": "household"}, {"id": 484, "q": "a great [s       ]　偉大な学者", "a": "scholar"}, {"id": 485, "q": "according to a new [s       ]　新しい調査によると", "a": "survey"}, {"id": 486, "q": "a [v       ] of 5,000 words　5,000語の語彙", "a": "vocabulary"}, {"id": 487, "q": "a natural [e       ]　天敵", "a": "enemy"}, {"id": 488, "q": "a bridge under [c       ]　建設中の橋", "a": "construction"}, {"id": 489, "q": "a [l       ] on history　歴史に関する講義", "a": "lecture"}, {"id": 490, "q": "follow his [i       ]　彼の指示に従う", "a": "instructions"}, {"id": 491, "q": "get over the economic [c       ]　経済危機を乗り越える", "a": "crisis"}, {"id": 492, "q": "a dentist's [i       ]　歯医者の道具", "a": "instrument"}, {"id": 493, "q": "grow various [c       ]　さまざまな作物を育てる", "a": "crops"}, {"id": 494, "q": "a laser [w       ]　レーザー兵器", "a": "weapon"}, {"id": 495, "q": "an electronic [d       ]　電子装置", "a": "device"}, {"id": 496, "q": "the [p       ] to victory　勝利への道", "a": "path"}, {"id": 497, "q": "predict [e       ]　地震を予知する", "a": "earthquakes"}, {"id": 498, "q": "a clear mountain [s       ]　きれいな山の小川", "a": "stream"}, {"id": 499, "q": "the [n       ] of freedom　自由の概念", "a": "notion"}, {"id": 500, "q": "a tree in the [y       ]　庭の木", "a": "yard"}, {"id": 501, "q": "[v       ] of the war　戦争の犠牲者", "a": "victims"}, {"id": 502, "q": "run out of [f       ]　燃料を使い果たす", "a": "fuel"}, {"id": 503, "q": "the common [a       ] of all humans　すべての人類の共通の祖先", "a": "ancestors"}, {"id": 504, "q": "the rich [s       ] of the Nile River　ナイル川の豊かな土壌", "a": "soil"}, {"id": 505, "q": "a [d       ] on education　教育についての討論", "a": "debate"}, {"id": 506, "q": "a violent [c       ]　凶悪犯罪", "a": "crime"}, {"id": 507, "q": "my friends and [c       ]　私の友人と同僚", "a": "colleagues"}, {"id": 508, "q": "take a book from the [s       ]　たなから本を取る", "a": "shelf"}, {"id": 509, "q": "[a       ] of DNA　DNAの分析", "a": "analysis"}, {"id": 510, "q": "stars in the [u       ]　宇宙の星", "a": "universe"}, {"id": 511, "q": "a machine run by [e       ]　電気で動く機械", "a": "electricity"}, {"id": 512, "q": "social [i       ] like ants　アリのような社会性昆虫", "a": "insects"}, {"id": 513, "q": "be caught in a spider's [w       ]　クモの巣にかかる", "a": "web"}, {"id": 514, "q": "a heavy [s       ]　激しい嵐", "a": "storm"}, {"id": 515, "q": "have [p       ] of time　十分な時間がある", "a": "plenty"}, {"id": 516, "q": "land suitable for [a       ]　農業に向いた土地", "a": "agriculture"}, {"id": 517, "q": "the [g       ] for eye color　目の色を決める遺伝子", "a": "gene"}, {"id": 518, "q": "[e       ] of life on Mars　火星に生物がいるという証拠", "a": "evidence"}, {"id": 519, "q": "have serious [c       ]　重大な結果をまねく", "a": "consequences"}, {"id": 520, "q": "the mother-[i       ] relationship　母親と幼児の関係", "a": "infant"}, {"id": 521, "q": "have no [l       ] time for sports　スポーツをする暇がない", "a": "leisure"}, {"id": 522, "q": "the gray [c       ] of the brain　灰色の脳細胞", "a": "cells"}, {"id": 523, "q": "have musical [t       ]　音楽の才能がある", "a": "talent"}, {"id": 524, "q": "newspaper [a       ]　新聞広告", "a": "advertising"}, {"id": 525, "q": "increase to some [e       ]　ある程度まで増える", "a": "extent"}, {"id": 526, "q": "take out the [g       ]　ゴミを出す", "a": "garbage"}, {"id": 527, "q": "the [g       ] public　一般大衆", "a": "general"}, {"id": 528, "q": "[v       ] kinds of flowers　さまざまな種類の花", "a": "various"}, {"id": 529, "q": "be [s       ] to each other　お互いに似ている", "a": "similar"}, {"id": 530, "q": "a [c       ] failure　完全な失敗", "a": "complete"}, {"id": 531, "q": "a [s       ] rise in prices　物価の急激な上昇", "a": "sharp"}, {"id": 532, "q": "an [e       ] restaurant　高価なレストラン", "a": "expensive"}, {"id": 533, "q": "a [p       ] leader　政治的な指導者", "a": "political"}, {"id": 534, "q": "be [a       ] of the danger　危険に気づいている", "a": "aware"}, {"id": 535, "q": "[a       ] Greece and Rome　古代のギリシャとローマ", "a": "ancient"}, {"id": 536, "q": "a [m       ] study　医学の研究", "a": "medical"}, {"id": 537, "q": "Water is [e       ] to life.　水は生命に不可欠だ", "a": "essential"}, {"id": 538, "q": "a [h       ] city　巨大な都市", "a": "huge"}, {"id": 539, "q": "a [t       ] accident　ひどい事故", "a": "terrible"}, {"id": 540, "q": "[p       ] English　実用的な英語", "a": "practical"}, {"id": 541, "q": "the [e       ] world　全世界", "a": "entire"}, {"id": 542, "q": "my [f       ] food　私のいちばん好きな食べ物", "a": "favorite"}, {"id": 543, "q": "enjoy a [c       ] life　快適な生活を楽しむ", "a": "comfortable"}, {"id": 544, "q": "a [m       ] problem　小さい問題", "a": "minor"}, {"id": 545, "q": "a [t       ] American family 　典型的なアメリカの家族", "a": "typical"}, {"id": 546, "q": "an [i       ] place to live　生活するのに理想的な土地", "a": "ideal"}, {"id": 547, "q": "the [p       ] cities of Europe　ヨーロッパの主要な都市", "a": "principal"}, {"id": 548, "q": "the most [a       ] word　最も適切な単語", "a": "appropriate"}, {"id": 549, "q": "an [e       ] bottle　からのビン", "a": "empty"}, {"id": 550, "q": "[r       ] economic growth　急速な経済成長", "a": "rapid"}, {"id": 551, "q": "a [m       ] illness　精神の病", "a": "mental"}, {"id": 552, "q": "an [e       ] idea　すばらしいアイディア", "a": "excellent"}, {"id": 553, "q": "when it's [c       ] for you　君の都合がいいときに", "a": "convenient"}, {"id": 554, "q": "[p       ] danger　潜在的な危険", "a": "potential"}, {"id": 555, "q": "[f       ] support from the US　アメリカからの財政的援助", "a": "financial"}, {"id": 556, "q": "an [e       ] amount of damage　ばく大な額の損害", "a": "enormous"}, {"id": 557, "q": "a [r       ] stamp　珍しい切手", "a": "rare"}, {"id": 558, "q": "[a       ] intelligence　人工知能（AI）", "a": "artificial"}, {"id": 559, "q": "a [t       ] kitten　ちっちゃな子猫", "a": "tiny"}, {"id": 560, "q": "spend [c       ] time　かなりの時間を費やす", "a": "considerable"}, {"id": 561, "q": "Her skin is [s       ] to sunlight.　彼女の肌は日光に敏感だ", "a": "sensitive"}, {"id": 562, "q": "high [i       ] ability　高度な知的能力", "a": "intellectual"}, {"id": 563, "q": "Salty food makes you [t       ].　塩分の多い食事でのどが渇く", "a": "thirsty"}, {"id": 564, "q": "be [p       ] to ladies　女性に対して礼儀正しい", "a": "polite"}, {"id": 565, "q": "[a       ] information　正確な情報", "a": "accurate"}, {"id": 566, "q": "[r       ] behavior　失礼な振る舞い", "a": "rude"}, {"id": 567, "q": "pay [s       ] attention　十分な注意を払う", "a": "sufficient"}, {"id": 568, "q": "[u       ] life　都会の暮らし", "a": "urban"}, {"id": 569, "q": "[t       ] loss of memory　一時的な記憶喪失", "a": "temporary"}, {"id": 570, "q": "a [p       ] society　原始的な社会", "a": "primitive"}, {"id": 571, "q": "[p       ] teeth　永久歯", "a": "permanent"}, {"id": 572, "q": "the care of [e       ] people　高齢者のケア", "a": "elderly"}, {"id": 573, "q": "[s       ] winter weather　厳しい冬の天候", "a": "severe"}, {"id": 574, "q": "a [b       ] explanation　簡潔な説明", "a": "brief"}, {"id": 575, "q": "a [m       ] society　流動的な社会", "a": "mobile"}, {"id": 576, "q": "the [l       ] news from China　中国からの最新のニュース", "a": "latest"}, {"id": 577, "q": "[m       ] aid to Israel　イスラエルへの軍事的援助", "a": "military"}, {"id": 578, "q": "[s       ] rules　厳しい規則", "a": "strict"}, {"id": 579, "q": "a [s       ] state　固体の状態", "a": "solid"}, {"id": 580, "q": "say [s       ] things　ばかなことを言う", "a": "stupid"}, {"id": 581, "q": "[b       ] weapons　生物兵器", "a": "biological"}, {"id": 582, "q": "[P       ] he won't come.　おそらく彼は来ないだろう", "a": "Probably"}, {"id": 583, "q": "I [h       ] know Bill.　ビルのことはほとんど知らない", "a": "hardly"}, {"id": 584, "q": "leave [i       ] after lunch　昼食後すぐに出発する", "a": "immediately"}, {"id": 585, "q": "He [e       ] became president.　ついに彼は大統領になった", "a": "eventually"}, {"id": 586, "q": "a [f       ] used word　しばしば使われる言葉", "a": "frequently"}, {"id": 587, "q": "an [e       ] difficult problem　非常に難しい問題", "a": "extremely"}, {"id": 588, "q": "[g       ] become colder　だんだん冷たくなる", "a": "gradually"}, {"id": 589, "q": "[i       ] recognizable songs　すぐにそれとわかる歌", "a": "instantly"}, {"id": 590, "q": "He is rich; [n       ] he is unhappy.　彼は金持ちだが，それにもかかわらず，不幸だ", "a": "nevertheless"}, {"id": 591, "q": "He's kind; [m       ], he's strong.　彼は親切で，その上強い", "a": "moreover"}, {"id": 592, "q": "[r       ] few people　比較的少数の人々", "a": "relatively"}, {"id": 593, "q": "an [a       ] simple question　一見簡単な問題", "a": "apparently"}, {"id": 594, "q": "I will [d       ] not marry you.　絶対あなたとは結婚しない", "a": "definitely"}, {"id": 595, "q": "[l       ] because of the problem　主にその問題のせいで", "a": "largely"}, {"id": 596, "q": "The class is [m       ] Japanese.　クラスの大部分は日本人だ", "a": "mostly"}, {"id": 597, "q": "[a       ] 10,000 years ago　およそ1万年前", "a": "approximately"}, {"id": 598, "q": "stay [o       ] in his house　彼の家で一晩泊まる", "a": "overnight"}, {"id": 599, "q": "[a       ] discover an island　偶然島を発見する", "a": "accidentally"}, {"id": 600, "q": "He lost [d       ] his efforts.　努力にもかかわらず彼は負けた", "a": "despite"}];
-
-  const UI = {
-    playerName: document.getElementById('playerName'),
-    startId: document.getElementById('startId'),
-    endId: document.getElementById('endId'),
-    order: document.getElementById('order'),
-    judge: document.getElementById('judge'),
-    difficulty: document.getElementById('difficulty'),
-    limit: document.getElementById('limit'),
-    volume: document.getElementById('volume'),
-    start: document.getElementById('start'),
-    reset: document.getElementById('reset'),
-    skip: document.getElementById('skip'),
-    input: document.getElementById('input'),
-    prompt: document.getElementById('prompt'),
-    hint: document.getElementById('hint'),
-    progress: document.getElementById('progress'),
-    correct: document.getElementById('correct'),
-    mist: document.getElementById('mist'),
-    wpm: document.getElementById('wpm'),
-    remain: document.getElementById('remain'),
-    feedback: document.getElementById('feedback'),
-    showlog: document.getElementById('showlog'),
-    log: document.getElementById('log'),
-    leaderboard: document.getElementById('lbList'),
-    lbOverlay: document.getElementById('lbListOverlay'),
-    weekKeyLabel: document.getElementById('weekKeyLabel'),
-    overlay: document.getElementById('overlay'),
-    ovBadge: document.getElementById('ovBadge'),
-    ovTitle: document.getElementById('ovTitle'),
-    ovDetail: document.getElementById('ovDetail'),
-    ovSmall: document.getElementById('ovSmall'),
-    ovClose: document.getElementById('ovClose'),
-    rubricBox: document.getElementById('rubricBox'),
-  };
-  // ---------- Flight Mini Game ----------
-  const flight = (() => {
-    const canvas = document.getElementById('flightCanvas');
-    if(!canvas) return {init(){},tick(){},boost(){},penalty(){},onQuestion(){},reset(){}};
-    const ctx = canvas.getContext('2d');
-    let W=canvas.width, H=canvas.height;
-    const seaH = 32;
-    let altitude = 65;          // 0-100
-    let fell = false, cleared = false;
-    let lastT = null;
-    let landProgress = 0;       // 0..1 in last 10s
-    let streak = 0;
-    let sparkles = [];
-    let bubbles = [];
-    let splashes = [];
-    let qStartAt = Date.now();
-
-    function resize(){
-      const rect = canvas.getBoundingClientRect();
-      // keep internal resolution proportional
-      W = canvas.width = Math.max(420, Math.floor(rect.width*2));
-      H = canvas.height = Math.floor((rect.height||180)*2);
-    }
-    window.addEventListener('resize', resize);
-
-    function onQuestion(){ qStartAt = Date.now(); }
-
-    function spawnSparkle(){
-      const x = W*0.25, y = H*(1-altitude/100) - 8;
-      for(let i=0;i<6;i++){
-        sparkles.push({
-          x, y,
-          vx:(Math.random()*2-1)*1.2,
-          vy:(Math.random()*-2-0.5),
-          life: 600
-        });
-      }
-    }
-    function spawnBubbles(big=false){
-      const count = big?18:8;
-      for(let i=0;i<count;i++){
-        bubbles.push({
-          x: W*0.18 + Math.random()*40,
-          y: H-seaH + Math.random()*8,
-          r: big? (4+Math.random()*6) : (2+Math.random()*4),
-          vy: - (0.4+Math.random()*1.2),
-          life: big?1200:700
-        });
-      }
-      splashes.push({life: big?700:350, big});
-    }
-
-    function playBoostTone(){
-      try{
-        ensureAudio();
-        const a = audioCtx;
-        const o = a.createOscillator();
-        const g = a.createGain();
-        o.type='triangle';
-        const now=a.currentTime;
-        o.frequency.setValueAtTime(880, now);
-        o.frequency.exponentialRampToValueAtTime(1320, now+0.12);
-        g.gain.setValueAtTime(0.0001, now);
-        g.gain.exponentialRampToValueAtTime(0.15, now+0.01);
-        g.gain.exponentialRampToValueAtTime(0.0001, now+0.18);
-        o.connect(g).connect(a.destination);
-        o.start(now);
-        o.stop(now+0.2);
-      }catch(e){}
-    }
-
-    function boost(){
-      if(fell||cleared) return;
-      const elapsed = Date.now()-qStartAt;
-      const fast = Math.max(0, 1 - elapsed/2500); // 0..1
-      // 難易度に応じてブースト量を調整（甘口は上昇量が多い）
-      const isEasy = UI.difficulty.value === 'easy';
-      const baseAdd = isEasy ? 5 : 9;
-      const fastBonus = isEasy ? 3 : 14;
-      const add = baseAdd + fast*fastBonus;
-      altitude = Math.min(100, altitude + add);
-      streak++;
-      if(streak>=3){
-        spawnSparkle();
-        if(streak===3 || streak===6 || streak===9) playBoostTone();
-      }
-    }
-    function penalty(big=false){
-      if(fell||cleared) return;
-      streak=0;
-      // 難易度に応じてペナルティを調整
-      const isEasy = UI.difficulty.value === 'easy';
-      const penaltyAmount = isEasy ? (big ? 0.5 : 0.3) : (big ? 3 : 2);
-      altitude = Math.max(0, altitude - penaltyAmount);
-      spawnBubbles(false);
-    }
-
-    function tick(leftMs){
-      if(!lastT){ lastT=Date.now(); return; }
-      const now=Date.now();
-      const dt=(now-lastT)/1000;
-      lastT=now;
-
-      if(fell||cleared) { draw(leftMs); return; }
-
-      // 難易度に応じて重力（落下速度）を調整
-      const isEasy = UI.difficulty.value === 'easy';
-      const gravity = isEasy ? 1.2 : 1.3;
-      altitude = Math.max(0, altitude - dt*gravity);
-
-      if(leftMs!=null && leftMs<=10000){
-        landProgress = 1 - Math.max(0, leftMs)/10000;
-      } else {
-        landProgress = 0;
-      }
-
-      if(altitude<=0 && !fell){
-        fell=true;
-        window.__fell = true;
-        spawnBubbles(true);
-        draw(leftMs, true);
-        try{ if(timer) clearInterval(timer); }catch(e){}
-        setTimeout(()=>finish(true), 400);
-        return;
-      }
-      draw(leftMs);
-    }
-
-    function reset(){
-      // 難易度に応じて初期高度を設定（甘口は高めスタート）
-      const isEasy = UI.difficulty.value === 'easy';
-      altitude = isEasy ? 80 : 65;
-      fell=false; cleared=false; lastT=null; landProgress=0; streak=0;
-      sparkles=[]; bubbles=[]; splashes=[];
-      window.__fell = false;
-    }
-
-    function setCleared(){
-      cleared=true;
-      draw(0);
-    }
-
-    function draw(leftMs, justFell=false){
-      resize();
-      ctx.clearRect(0,0,W,H);
-
-      // sky gradient
-      const g = ctx.createLinearGradient(0,0,0,H);
-      g.addColorStop(0,'#cfe9ff');
-      g.addColorStop(1,'#f8fdff');
-      ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-
-      // clouds
-      ctx.fillStyle='rgba(255,255,255,0.8)';
-      for(let i=0;i<4;i++){
-        const cx=W*(0.15+i*0.2), cy=H*0.18+(i%2)*10;
-        ctx.beginPath(); ctx.ellipse(cx,cy,36,14,0,0,Math.PI*2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(cx+26,cy+3,28,12,0,0,Math.PI*2); ctx.fill();
-      }
-
-      // draw land approaching in last 10s
-      if(landProgress>0){
-        const landW = W*0.35*landProgress;
-        ctx.fillStyle='#b7e3a0';
-        ctx.fillRect(W-landW, H-seaH-18, landW, 18);
-        ctx.fillStyle='#7cc27a';
-        ctx.beginPath();
-        ctx.moveTo(W-landW, H-seaH-18);
-        ctx.lineTo(W, H-seaH-18);
-        ctx.lineTo(W, H-seaH-30);
-        ctx.closePath(); ctx.fill();
-      }
-
-      // sea
-      ctx.fillStyle='#66b7e8';
-      ctx.fillRect(0,H-seaH,W,seaH);
-
-      // small waves
-      ctx.strokeStyle='rgba(255,255,255,0.7)';
-      ctx.lineWidth=2;
-      for(let x=0;x<W;x+=60){
-        ctx.beginPath();
-        ctx.arc(x+20, H-seaH+6, 18, Math.PI, 0);
-        ctx.stroke();
-      }
-
-      // splashes (wave arcs) on miss/fall
-      splashes = splashes.filter(s=>s.life>0);
-      splashes.forEach(s=>{
-        s.life-=16;
-        const k = 1 - s.life/(s.big?700:350);
-        const r = (s.big?46:26)*k;
-        ctx.strokeStyle=`rgba(255,255,255,${0.9*(1-k)})`;
-        ctx.lineWidth=s.big?4:3;
-        ctx.beginPath();
-        ctx.arc(W*0.18, H-seaH+2, r, Math.PI, 0);
-        ctx.stroke();
-      });
-
-      // bubbles
-      bubbles = bubbles.filter(b=>b.life>0);
-      bubbles.forEach(b=>{
-        b.life-=16; b.y += b.vy*2;
-        ctx.fillStyle='rgba(255,255,255,0.85)';
-        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
-      });
-
-      // sparkles
-      sparkles = sparkles.filter(p=>p.life>0);
-      sparkles.forEach(p=>{
-        p.life-=16; p.x+=p.vx*2; p.y+=p.vy*2;
-        ctx.fillStyle=`rgba(255,255,180,${p.life/600})`;
-        ctx.beginPath(); ctx.arc(p.x,p.y,2.5,0,Math.PI*2); ctx.fill();
-      });
-
-      // stickman + winged bike
-      const baseY = H-seaH-8;
-      let y = baseY - (altitude/100)*(H-seaH-60);
-      // landing on land when cleared (last 1.5s): smoothly move bike down to land surface
-      const landTopY = H - seaH - 18;
-      const landY = landTopY - 22; // wheel bottom touches land top (y+22)
-      if(!fell && leftMs!=null && leftMs<=1500){
-        const lp = Math.min(1, Math.max(0, 1 - leftMs/1500));
-        y = y*(1-lp) + landY*lp;
-      }
-      const xStart = W*0.22;
-      const xEnd = W*0.72; // reach land at end
-      const x = xStart + landProgress*(xEnd-xStart);
-
-      // wings
-      ctx.strokeStyle='rgba(255,255,255,0.9)';
-      ctx.lineWidth=3;
-      ctx.beginPath();
-      ctx.moveTo(x-12,y-18); ctx.quadraticCurveTo(x-40,y-30,x-55,y-12);
-      ctx.moveTo(x+12,y-18); ctx.quadraticCurveTo(x+40,y-30,x+55,y-12);
-      ctx.stroke();
-
-      // bike wheels
-      ctx.strokeStyle='#222'; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.arc(x-16,y+12,10,0,Math.PI*2); ctx.stroke();
-      ctx.beginPath(); ctx.arc(x+18,y+12,10,0,Math.PI*2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(x-6,y+12); ctx.lineTo(x+8,y+12); ctx.stroke();
-
-      // stickman
-      ctx.strokeStyle='#111'; ctx.lineWidth=3;
-      ctx.beginPath(); ctx.arc(x, y-20, 7, 0, Math.PI*2); ctx.stroke(); // head
-      ctx.beginPath(); ctx.moveTo(x, y-13); ctx.lineTo(x, y+2); ctx.stroke(); // body
-      ctx.beginPath(); ctx.moveTo(x, y-6); ctx.lineTo(x-12, y-2); ctx.stroke(); // arm
-      ctx.beginPath(); ctx.moveTo(x, y-6); ctx.lineTo(x+10, y-1); ctx.stroke(); // arm
-      ctx.beginPath(); ctx.moveTo(x, y+2); ctx.lineTo(x-10, y+12); ctx.stroke(); // leg
-      ctx.beginPath(); ctx.moveTo(x, y+2); ctx.lineTo(x+6, y+12); ctx.stroke(); // leg
-
-      // HUD text
-      ctx.fillStyle='#08324a'; ctx.font=`${Math.floor(H*0.09)}px sans-serif`;
-      const altTxt = fell? 'FALL!' : (cleared? 'Clear!' : `Height ${Math.round(altitude)}%`);
-      ctx.fillText(altTxt, 12, 28);
-
-      if(cleared){
-        ctx.fillStyle='#fff';
-        ctx.strokeStyle='#0a4'; ctx.lineWidth=6;
-        ctx.font=`bold ${Math.floor(H*0.22)}px sans-serif`;
-        ctx.strokeText('Clear!', W*0.35, H*0.5);
-        ctx.fillText('Clear!', W*0.35, H*0.5);
-      }
-      if(justFell){
-        ctx.fillStyle='#fff';
-        ctx.font=`bold ${Math.floor(H*0.18)}px sans-serif`;
-        ctx.fillText('Splash!', W*0.33, H*0.45);
-      }
-    }
-
-    return {tick,boost,penalty,onQuestion,reset,setCleared};
-  })();
-  // ---------- /Flight Mini Game ----------
-
-
-  let seq = [], idx = 0, correct = 0, mist = 0, typed = 0;
-  let startAt = 0, timer = null, endAt = 0;
-
-  // ---------- 週キー（ISO week） ----------
-  function getWeekKey(d=new Date()){
-    // ISO week number
-    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-    const dayNum = date.getUTCDay() || 7;
-    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
-    const weekNo = Math.ceil((((date - yearStart) / 86400000) + 1)/7);
-    return date.getUTCFullYear() + "-W" + String(weekNo).padStart(2,"0");
-  }
-  const WEEK_KEY = getWeekKey();
-  UI.weekKeyLabel.textContent = WEEK_KEY;
-
-  // ---------- ローカルランキング ----------
-  const LB_STORAGE_KEY = "systemTypingWeeklyScores";
-  function loadScores(){
-    try{
-      const raw = localStorage.getItem(LB_STORAGE_KEY);
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    }catch(e){ return []; }
-  }
-  function saveScores(arr){ localStorage.setItem(LB_STORAGE_KEY, JSON.stringify(arr)); }
-
-  function pruneToThisWeek(arr){
-    return arr.filter(x => x && x.week === WEEK_KEY);
-  }
-
-  function addScore(name, score){
-    let arr = pruneToThisWeek(loadScores());
-    arr.push({week: WEEK_KEY, name, score, ts: Date.now()});
-    // sort by score desc then time asc
-    arr.sort((a,b)=> (b.score-a.score) || (a.ts-b.ts));
-    arr = arr.slice(0, 50); // keep some history within week
-    saveScores(arr);
-  }
-
-  function renderLeaderboard(){
-    const arr = pruneToThisWeek(loadScores())
-      .sort((a,b)=> (b.score-a.score) || (a.ts-b.ts))
-      .slice(0,10);
-
-    const mk = (target)=> {
-      target.innerHTML = "";
-      if(arr.length===0){
-        const li=document.createElement("li");
-        li.textContent="まだ記録がありません";
-        target.appendChild(li);
-        return;
-      }
-      arr.forEach((x,i)=>{
-        const li=document.createElement("li");
-        const time=new Date(x.ts).toLocaleString();
-        li.textContent=`${i+1}位  ${x.name}  —  ${x.score}点  (${time})`;
-        target.appendChild(li);
-      });
-    };
-    mk(UI.leaderboard);
-    mk(UI.lbOverlay);
-  }
-  renderLeaderboard();
-
-  // ---------- ログ ----------
-  function log(msg, cls){
-    if(!UI.showlog.checked) return;
-    const d = document.createElement('div');
-    d.textContent = msg;
-    d.className = 'log-entry' + (cls ? ' ' + cls : '');
-    UI.log.prepend(d);
-  }
-  UI.showlog.addEventListener('change', ()=>{UI.log.style.display = UI.showlog.checked ? 'block':'none';});
-
-  // ---------- Audio ----------
-  let audioCtx = null;
-  function ensureAudio(){
-    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  function playTone(type){
-    ensureAudio();
-    const ctx = audioCtx;
-    const vol = parseInt(UI.volume.value,10)/100;
-    if(vol <= 0) return;
-    const now = ctx.currentTime;
-
-    if(type === 'ok'){
-      const freqs = [880, 1320];
-      freqs.forEach((f, i) => {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'sine';
-        o.frequency.setValueAtTime(f, now + i * 0.02);
-        g.gain.setValueAtTime(0, now + i * 0.02);
-        g.gain.linearRampToValueAtTime(vol * 0.45, now + 0.05 + i * 0.02);
-        g.gain.linearRampToValueAtTime(0, now + 0.28 + i * 0.02);
-        o.connect(g); g.connect(ctx.destination);
-        o.start(now + i * 0.02);
-        o.stop(now + 0.32 + i * 0.02);
-      });
-      return;
-    }
-
-    if(type === 'ng'){
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = 'square';
-      o.frequency.setValueAtTime(220, now);
-      g.gain.setValueAtTime(vol * 0.25, now);
-      g.gain.linearRampToValueAtTime(0, now + 0.25);
-      o.connect(g); g.connect(ctx.destination);
-      o.start(now);
-      o.stop(now + 0.27);
-      return;
-    }
-
-    if(type === 'time'){
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = 'triangle';
-      o.frequency.setValueAtTime(600, now);
-      o.frequency.linearRampToValueAtTime(260, now + 0.7);
-      g.gain.setValueAtTime(vol * 0.3, now);
-      g.gain.linearRampToValueAtTime(0, now + 0.7);
-      o.connect(g); g.connect(ctx.destination);
-      o.start(now);
-      o.stop(now + 0.72);
-      return;
-    }
-  }
-
-  function playFanfare(){
-    ensureAudio();
-    const ctx = audioCtx;
-    const vol = parseInt(UI.volume.value,10)/100;
-    if(vol <= 0) return;
-    const now = ctx.currentTime;
-
-    const chords = [
-      [523.25, 659.25, 783.99],
-      [587.33, 739.99, 880.00]
-    ];
-
-    chords.forEach((ch, ci) => {
-      ch.forEach((f, i) => {
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = 'square';
-        const start = now + ci * 0.28;
-        o.frequency.setValueAtTime(f, start);
-        g.gain.setValueAtTime(0, start);
-        g.gain.linearRampToValueAtTime(vol * 0.38, start + 0.06);
-        g.gain.linearRampToValueAtTime(0, start + 0.45);
-        o.connect(g); g.connect(ctx.destination);
-        o.start(start);
-        o.stop(start + 0.48);
-      });
-    });
-  }
-
-  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-  function normStrict(s){ return s.trim().toLowerCase(); }
-  function normLoose(s){ return s.toLowerCase().replace(/\s+/g,' ').trim(); }
-  function setStats(){UI.progress.textContent = idx + ' / ' + seq.length; UI.correct.textContent = correct; UI.mist.textContent = mist;}
-  function wpm(){ const mins = (Date.now()-startAt)/60000; return mins>0 ? Math.round(typed/5/mins) : 0; }
-  function fmt(ms){ const s = Math.max(0, Math.ceil(ms/1000)); const m = Math.floor(s/60); const ss = String(s%60).padStart(2,'0'); return m+':'+ss; }
-
-  function buildSequence(){
-    let s = parseInt(UI.startId.value,10) || 1;
-    let e = parseInt(UI.endId.value,10) || DATA.length;
-    if(s<1) s=1;
-    if(e>DATA.length) e=DATA.length;
-    if(s>e) [s,e] = [e,s];
-    UI.startId.value = s; UI.endId.value = e;
-    seq = DATA.filter(item => item.id >= s && item.id <= e);
-    if(UI.order.value === 'asc') seq.sort((a,b)=>a.id-b.id);
-    else if(UI.order.value === 'desc') seq.sort((a,b)=>b.id-a.id);
-    else shuffle(seq);
-  }
-
-  // ---------- ヒント（2秒ごとに追加 / timestamp制御） ----------
-  let hintRAF = 0, hintStartTs = 0, lastReveal = 0, currentAns = "";
-  function stopHintRAF(){ if(hintRAF) cancelAnimationFrame(hintRAF); hintRAF=0; }
-  function renderHint(revealIndex){
-    if(!currentAns){ UI.hint.textContent='ヒント：'; return; }
-    const shown = currentAns.slice(0, revealIndex);
-    const masked = currentAns.slice(revealIndex).replace(/\S/g,'•');
-    UI.hint.textContent = 'ヒント：' + shown + masked;
-  }
-  function startHintRAF(){
-    stopHintRAF();
-    hintStartTs = performance.now();
-    lastReveal = 1;
-    renderHint(lastReveal);
-    const tick = (now) => {
-      const elapsed = now - hintStartTs;
-      const shouldReveal = 1 + Math.floor(elapsed / 2000);
-      if(shouldReveal > lastReveal){
-        lastReveal = Math.min(shouldReveal, currentAns.length);
-        renderHint(lastReveal);
-      }
-      if(lastReveal < currentAns.length) hintRAF = requestAnimationFrame(tick);
-      else stopHintRAF();
-    };
-    hintRAF = requestAnimationFrame(tick);
-  }
-
-  function showQuestion(){
-    flight.onQuestion();
-    stopHintRAF();
-    if(idx >= seq.length) return finish(false);
-    const cur = seq[idx];
-    currentAns = cur.a || "";
-    UI.prompt.textContent = cur.q;
-    if(currentAns.length <= 1) renderHint(currentAns.length);
-    else startHintRAF();
-    UI.input.value=''; UI.input.focus(); setStats();
-  }
-
-  function start(){
-    flight.reset();
-    buildSequence();
-    idx=0; correct=0; mist=0; typed=0;
-    startAt = Date.now();
-    UI.wpm.textContent='0';
-    UI.input.disabled=false;
-    UI.feedback.textContent='';
-    if(timer) clearInterval(timer);
-    stopHintRAF();
-    const lim = parseInt(UI.limit.value,10);
-    endAt = lim ? Date.now()+lim*60000 : 0;
-    if(endAt){
-      timer=setInterval(()=>{
-        const left=endAt-Date.now();
-        UI.remain.textContent=fmt(left);
-        if(left<=0) finish(true);
-        UI.wpm.textContent=wpm();
-        flight.tick(left);
-      },250);
-    } else {
-      UI.remain.textContent='--:--';
-      timer=setInterval(()=>{UI.wpm.textContent=wpm(); flight.tick(null);},500);
-    }
-    setStats();
-    showQuestion();
-  }
-
-  function skipCurrent(){
-    if(idx>=seq.length) return;
-    log('#'+seq[idx].id+' スキップ ['+seq[idx].q+'] → '+seq[idx].a,'ng');
-    mist++; playTone('ng'); flight.penalty(); idx++; setStats(); showQuestion();
-  }
-
-  function buildRubric(activeLabel){
-    const rows = [
-      {label:'Poor', range:'0〜3問/分'},
-      {label:'Good', range:'4〜6問/分'},
-      {label:'Great', range:'7〜9問/分'},
-      {label:'Excellent', range:'10〜12問/分'},
-      {label:'Perfect', range:'13問以上/分'},
-    ];
-    UI.rubricBox.innerHTML='';
-    rows.forEach(r=>{
-      const div=document.createElement('div');
-      div.className='row'+(r.label===activeLabel?' active':'');
-      div.innerHTML=`<div class="label">${r.label}</div><div class="range">${r.range}</div>`;
-      UI.rubricBox.appendChild(div);
-    });
-  }
-
-  function showResultOverlay(byTime, spentSec, label){
-    const mins = spentSec/60 || 1;
-    const perMin = correct/mins;
-
-    // If player fell into the sea, don't show evaluation label/rubric highlight
-    if(!label){
-      UI.ovBadge.style.display='none';
-      UI.ovTitle.textContent='Game Over';
-      UI.ovDetail.textContent=`正答 ${correct} / ${seq.length}・ミス/スキップ ${mist}・平均 ${perMin.toFixed(1)} 問/分`;
-      buildRubric(null);
-      renderLeaderboard();
-      UI.ovSmall.textContent='海に落ちてしまいました…もう一度チャレンジ！';
-      UI.overlay.classList.add('show');
-      return;
-    }
-    UI.ovBadge.style.display='inline-flex';
-    let title='Good!'; let grad='linear-gradient(90deg,#4facfe,#00f2fe)';
-    if(label==='Poor'){ title='Keep Going!'; grad='linear-gradient(90deg,#555,#888)'; }
-    if(label==='Great'){ title='Great!'; grad='linear-gradient(90deg,#67e8f9,#22c55e)'; }
-    if(label==='Excellent'){ title='Excellent!!'; grad='linear-gradient(90deg,#f97316,#facc15)'; }
-    if(label==='Perfect'){ title='Perfect!!!'; grad='linear-gradient(90deg,#a855f7,#ec4899)'; }
-
-    UI.ovBadge.style.backgroundImage=grad;
-    UI.ovBadge.textContent=label;
-    UI.ovTitle.textContent=title;
-    UI.ovDetail.textContent=`正答 ${correct} / ${seq.length}・ミス/スキップ ${mist}・平均 ${perMin.toFixed(1)} 問/分`;
-
-    buildRubric(label);
-    renderLeaderboard();
-
-    UI.ovSmall.textContent = byTime
-      ? '時間切れまでよく頑張りました！もう一度挑戦してみましょう。'
-      : 'お疲れさまでした！';
-
-    UI.overlay.classList.add('visible');
-
-    const card=UI.overlay.querySelector('.result-card');
-    for(let i=0;i<35;i++) {
-      const p=document.createElement('div');
-      p.className='confetti-piece';
-      const hue=20+Math.random()*320;
-      p.style.background='hsl('+hue+',90%,60%)';
-      p.style.left=(Math.random()*100)+'%';
-      p.style.setProperty('--dx',(Math.random()*120-60)+'px');
-      p.style.animationDelay=(Math.random()*0.6)+'s';
-      card.appendChild(p);
-      setTimeout(()=>p.remove(),2200);
-    }
-
-    if(byTime) playTone('time');
-    else {
-      if(['Great','Excellent','Perfect'].includes(label)) playFanfare();
-      else if(label==='Good') playTone('ok');
-      else playTone('ng');
-    }
-  }
-
-  function finish(byTime){
-    if(timer) {clearInterval(timer); timer=null;}
-    stopHintRAF();
-    UI.input.disabled=true;
-    const spent=(Date.now()-startAt)/1000;
-    const mins=spent/60||1;
-    const perMin=correct/mins;
-
-    let label='Good';
-    if(perMin<=3) label='Poor';
-    else if(perMin<=6) label='Good';
-    else if(perMin<=9) label='Great';
-    else if(perMin<=12) label='Excellent';
-    else label='Perfect';
-
-    UI.feedback.textContent=(byTime?'時間切れ':'終了')+`：正答 ${correct} / ${seq.length}，ミス ${mist}，平均 ${perMin.toFixed(1)}問/分`;
-
-    // ランキング登録（無制限でもOK）
-    const name = (UI.playerName.value || 'NoName').slice(0,20);
-    addScore(name, correct);
-    renderLeaderboard();
-
-    showResultOverlay(byTime, spent, window.__fell ? null : label);
-  }
-
-  UI.input.addEventListener('input',(e)=>{
-    const v=e.target.value;
-    if(e.inputType==='insertText' && v.length>(e.target._prevLen||0)) typed++;
-    e.target._prevLen=v.length;
-    const cur=seq[idx]; if(!cur) return;
-    const target=cur.a; const mode=UI.judge.value;
-    const ok=(mode==='strict') ? (normStrict(v)===normStrict(target)) : (normLoose(v)===normLoose(target));
-    if(mode==='strict' && !normStrict(target).startsWith(normStrict(v))) {
-      mist++; setStats(); playTone('ng'); flight.penalty();
-      log('#'+cur.id+' ミスタイプ ['+cur.q+'] → '+v+' (正:'+target+')','ng');
-    }
-    if(ok){
-      correct++; setStats(); playTone('ok'); flight.boost();
-      log('#'+cur.id+' 正解 ['+cur.q+'] → '+target,'ok');
-      idx++; showQuestion();
-    }
-  });
-
-  UI.start.addEventListener('click', start);
-  UI.reset.addEventListener('click', ()=>{
-    if(timer) {clearInterval(timer); timer=null;}
-    stopHintRAF();
-    seq=[]; idx=0; correct=0; mist=0; typed=0;
-    UI.input.value=''; UI.input.disabled=true;
-    UI.progress.textContent='0 / 0'; UI.correct.textContent='0'; UI.mist.textContent='0';
-    UI.wpm.textContent='0'; UI.remain.textContent='--:--';
-    UI.prompt.textContent='（ここにB列の問題が表示されます）';
-    UI.hint.textContent='（ここにC列の答えを入力してください）';
-    UI.feedback.textContent=''; UI.log.innerHTML='';
-  });
-  UI.skip.addEventListener('click', skipCurrent);
-
-  UI.ovClose.addEventListener('click', ()=>{UI.overlay.classList.remove('visible');});
-  UI.overlay.addEventListener('click',(e)=>{if(e.target===UI.overlay) UI.overlay.classList.remove('visible');});
-</script>
-</body>
-</html>
+    // 教科書本文データ (Lesson 1-10)
+    const allLessonTexts = {
+        'L1': {
+            1: `You are now high school students. Some of you feel excited, and others feel nervous. “How many friends can I make?” “Can I find a true friend?” You enter the classroom and talk to some classmates. If you like each other, you can exchange social media information later. In the past, friendships grew slowly, but now it is quite different. If you become friends online, you can get in touch anytime. Moreover, social media gives you so much information about your friends—their hobbies, favorites, experiences, and so on. Thanks to social media, you can become close more quickly than ever before. This is one feature of friendships in the digital age.`,
+            2: `You have a lot of opportunities to make friends. This is another feature of friendships in the Internet age. Through social media, you can easily connect with anyone in the world. For instance, you can share your dreams and interests with more people online. Sometimes you cannot find friends with the same hobby as yours at school. However, in the online world, you can find people with similar interests. Additionally, you can share your worries or problems with online friends. Some of you don’t want to talk about your private or sensitive problems with school friends. However, if you communicate online, your “friends” may give you good advice.`,
+            3: `The world of social media has not only positive points but also negative ones. In fact, online friendships are more delicate than face-to-face friendships. For example, “friends” sometimes attack each other without thinking. They may overreact and block a person from their online group. Additionally, they may expose someone’s personal information by accident or even on purpose. Online communication sometimes makes people unhappy or sad. Therefore, you have to be very careful in the online world. Social media is quite useful if you can avoid these negative points. You can make more friends and become close more quickly. Today, there are many ways to connect with other people. How will you make friends in the digital age?`
+        },
+        'L2': {
+            1: `International Expositions, or Expos, are large public fairs to introduce ideas for our future. Each country exhibits unique products and new technologies. The first Expo was held over 170 years ago, in London in 1851. In 1867, Japan took part in its first Expo at the Paris Exposition. Visitors were fascinated by Japanese displays. They especially enjoyed ukiyoe, kimono, and a Japanese-style house. For Westerners, Asian-style life was new and interesting. After that, Japonism came into fashion around Europe. About a hundred years later, in 1970, Expo ’70 was held in Osaka. It was the first Expo in Asia. The event lasted for six months and turned out to be a great success. By the closing date, over 64 million people in total had visited it from all over the world.`,
+            2: `Since the first Expo in London, Expos have showcased human progress. We can get several benefits from Expos. Take Expo ’70 in Osaka, for example. First, we can introduce new technologies to the public. People were surprised at the wireless telephone, and called it the “dream phone.” This led to the birth of the mobile phone. Second, the host country can make economic developments. Expo visitors activated the local economy in many ways. Additionally, expressways, subways, and a monorail were built for the event. Third, some new products can become popular through Expos. One year before Expo ’70, the world’s first canned coffee went on sale in Japan. It did not attract people’s attention at first. However, it became very popular after it was introduced at the Expo.`,
+            3: `As we have seen, Expos provide many wonderful opportunities. However, the focus of Expos has been changing these days. Today, the world is facing many problems: poverty, wars, environmental issues, and so on. To deal with these problems, the United Nations set the 17 Sustainable Development Goals (SDGs) in 2015. With these goals, it hopes to make the world better by 2030 through global cooperation. Expos can be opportunities to make changes. We can solve social problems together with knowledge from around the world. Expos offer great opportunities for collaboration among countries. Therefore, they can play a role in realizing our global goals. What kind of future will you design at the next Expo?`
+        },
+        'L3': {
+            1: `“I want to be Japanese,” said the American woman at the start of the interview. Her stage name is Kyokudo Nanshun, and she is a professional kodan-shi. Kodan is a traditional style of Japanese storytelling. Kodan-shi recite Japanese historical episodes with dramatic, rhythmic chanting. They also tap a low desk with a leather-bound fan to show emphasis in the story. At university in the US, Nanshun studied Japanese hard. After she graduated, she came to Japan as an English teacher. She enjoyed kimono, iaido, and traditional performing arts such as bunraku, noh, and rakugo. One day, she attended a kodan performance for the first time, and was moved quite deeply. At that time, she thought, “This is it! I want to become a kodan-shi.” In 2013, she was given the name Kyokudo Nanshun by her master Kyokudo Nanryo IV.`,
+            2: `Nanshun discusses kodan in the interview. Interviewer: Why are you so attracted to kodan? Nanshun: There are several reasons. First, I admire the beautiful hand movements in kodan. The first time I saw a performance, the storyteller used very graceful gestures to express a blooming flower. Next, I love the expressions on the faces of kodan-shi. They can skillfully show the confidence of a samurai or the evilness of a demon. The audience can clearly imagine the kodan stories because all the characters are described so vividly. For me, kodan is a deeply creative world. Interviewer: Wow! You are really attracted to the creativity of kodan. Nanshun: Yes, but I love the kodan stories themselves as well. There are a great number of interesting characters in Japanese history. They all can be expressed so realistically by kodan-shi. I’m a big fan of Sakamoto Ryoma and I really enjoy telling stories about his dramatic life.`,
+            3: `Interviewer: Are there any difficulties in performing kodan? Nanshun: Of course. As an English speaker, there are various challenges. Some Japanese sounds like rya/ryu/ryo were especially difficult. I used to practice kodan loudly in a karaoke box so that I could master these sounds. Also, sometimes it’s hard for me to understand old Japanese. One time, I couldn’t express the nuance of ifu-rin’zen. Even after I learned the meaning in English, it was still very hard to deliver. So, I must learn more about Japan and the Japanese language. Interviewer: That makes sense. What do you think about performing for Japanese audiences? Nanshun: They are wonderful, but sometimes it is challenging to know their feelings. I usually need to make adjustments for each performance according to their mood. If they are relaxed, I can perform freely. However, if they are a little shy, I have to work much harder to bring them into my world.`,
+            4: `Interviewer: What’s your next goal as a kodan-shi? Nanshun: Well, I want to continue my work in kodan for a long time. Therefore, I got a permanent resident visa in Japan. Japanese history is fascinating for me, but not for everyone else. So, I will continue to share the wonders of Japanese culture by performing kodan. I hope kodan will become much more popular throughout the country. Interviewer: Do you have a message for Japanese high school students? Nanshun: Yes, I do. Don’t be afraid of having dreams. Whether you succeed or not, your life will be enriched by challenging yourself. Sometimes others may disagree with you because they think your dreams are too difficult to achieve. Ryoma once said, “Even if people say negative things about me, I continue to believe in myself.” I say these words to myself every day.`
+        },
+        'L4': {
+            1: `If we need to change people’s behavior, what should we do? One common approach is a sign that tells people what to do. However, as we know from experience, signs seem to work only sometimes. We need to find some new approaches. For example, how can we get people to return file boxes properly on a shelf? Look at Picture 1. If a single line is drawn through the backs of the file boxes, people will know where to put them. How about making children put away their toys? Well, place a basketball hoop above the toy box as you see in Picture 2. Then, children will want to toss their toys into the box. These two examples are indirect ways to change people’s behavior. They encourage people to behave better willingly. Such approaches are called shikake, or triggers.`,
+            2: `Let’s look at some other examples. How can we get people to use stairs instead of escalators? An experiment was done at a train station in Sweden. The stairs were designed like piano keys. As people climbed, they made piano-like sounds with their feet. The “Piano Stairs” experiment was very successful. More people used the stairs, and thus got more exercise. There is another trigger called “The World’s Deepest Bin.” A trash bin had a sensor to make a long falling sound when people put trash in it. Many people wanted to hear it again, so they threw away more trash. This special bin collected much more trash than a regular bin. How can we create such effective triggers? Sometimes combining things in unique ways leads to new, flexible ideas. This can motivate us to act in a different, positive manner.`,
+            3: `A flexible perspective is necessary when we deal with social problems. For instance, many children in South Africa once died from diseases. It was because they didn’t wash their hands enough. To get children to wash their hands regularly, a toy was put inside each piece of soap. Children became eager to wash their hands because they wanted to get the toy. The soap used in this successful program was called “Hope Soap.” Let’s look at another example. In 1995, more than a million volunteers went to help after the Great Hanshin-Awaji Earthquake. However, it was difficult to match volunteers’ skills with victims’ needs. Later, dekimasu zekken was created to solve this problem. Volunteers wrote their skills on sheets of paper and put them on their backs. Dekimasu zekken still brings people together and promotes communication in disaster areas.`,
+            4: `As we have seen, social problems can be solved with flexible approaches like triggers. This is called “social design,” and we can see it in a number of Japanese local communities. Take as an example, Inakadate Village, a famous rice-growing area in Aomori. For many years, it didn’t have any special tourist spots. In 1993, villagers began to design rice fields as art. These beautiful fields now attract more than a quarter million visitors each year. Here is another good example. Kumamoto Castle has been raising money for renovations in an interesting way. Contributors can register their names as “castle lords.” Nearly 200 million yen was collected for its reconstruction in the six months after the 2016 earthquakes. If we want to change our communities for the better, then we need flexible approaches. Let’s take advantage of social design to improve our own communities.`
+        },
+        'L5': {
+            1: `Have you ever heard of Rwanda? It is a country with great natural beauty in central Africa. Marie Louise Kambenga, a peace activist, is from Rwanda. She was the only girl who graduated from high school in her village. She studied home economics, and after graduation, became a dressmaking teacher. In her school, there was a Japanese volunteer. She recommended Louise as a trainee in Japan. In 1993, Louise came to Fukushima as a trainee to study dressmaking. Living with a host family in Japan was a completely new experience for her. Louise was really amazed when she saw an elderly woman reading a newspaper. She had never seen such a thing! Louise was also impressed with Japan’s educational system, especially free public education for all children. In Rwanda, many poor children could not go to school. In 1994, after an interesting 10-month experience, Louise returned to her husband and children in Rwanda.`,
+            2: `Two months after her return, her life suddenly changed. One evening, Louise and her family heard a loud explosion. She did not know what was happening in her country until she received a phone call from Japan. Her host family told her that the president of Rwanda had been assassinated. The country fell into confusion. In the early 20th century, Rwandan people were divided and set against each other by Belgian rulers. These groups started to fight one another. After the assassination of the president, the situation got worse and worse. People even killed their relatives just because they were from different groups. The confusion caused a genocide, that is, the mass killing of people. Louise and her family had to escape from Rwanda. On the way to the border, there was death all around them. Shockingly, they saw young people killed right in front of them.`,
+            3: `At last, Louise and her family arrived at one of the refugee camps in the Congo. However, the camp was like hell. People could not find enough food, so they had to eat grass to stay alive. A large number of people died every day. One day, when Louise was standing in line to send a fax to Japan, a Japanese volunteer doctor spoke to her. He realized that Louise knew some Japanese because he noticed hiragana on her paper. He asked her if she could work as an interpreter in the camp. Unbelievably, when she escaped from Rwanda, her Japanese dictionary had been in her bag. This unexpected item enabled her to work as an interpreter and save many other refugees. Louise and her family stayed in the camp for six months. After that, thanks to her Japanese friends, she came to Japan again, this time with her family. She finally escaped from this horrible civil war.`,
+            4: `Louise believes that the Rwandan civil war was caused by a lack of education. People in Rwanda were easily manipulated during the war. In other words, they could not tell right from wrong. She has realized that education is the key to preventing future wars. When education can create peace in a village, then it can also build a peaceful nation. With this knowledge, Louise established a school for children in Rwanda. All children can attend this school even if they do not have money. Young people’s thinking changed after that. In the past, when children in Rwanda were asked about their dreams, they said, “Can I live until I’m a grown-up?” Now, school children in Rwanda have dreams for the future. Today, Louise lives in Japan. She survived the Rwandan genocide through education. She keeps sharing her experiences with people in both Rwanda and Japan.`
+        },
+        'L6': {
+            1: `We use various units such as meters, seconds, and grams to measure things in our daily lives. Have you ever thought about the origins of these units? History gives us some hints about the role of units in our lives. We humans have evolved by learning how to measure the world around us. The earliest recorded system of units dates back to the Old Stone Age, more than 15,000 years ago. People in those days counted and recorded how much of each food they had collected. In addition, about 5,000 years ago, Sumerians of Mesopotamia kept records of their crops and livestock. These examples show us how early humans began to build their communities. By sharing a counting system, people could measure things more clearly. Thus, they could communicate better and trade with each other more fairly.`,
+            2: `How did people originally measure the length of things around them? In ancient times, they used parts of the human body. For example, in ancient Egypt and Greece, the distance from the elbow to the tip of the middle finger was called a cubit. In those days, one cubit was around 50 centimeters long. Half a cubit was called a span. This was the distance between one’s outstretched thumb and little finger. In the same way, Japan also based measurements on the body. The units shaku and sun were imported from China into Japan. One shaku was originally the distance between a person’s thumb and middle finger. One sun was measured as the width of the thumb, which is almost equal to one inch in the US.`,
+            3: `The units for weight and volume were often based on everyday foods. In the West, grain for making bread was used to define units. Originally,
