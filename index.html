@@ -65,6 +65,24 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .card.locked .rg{color:#4E473E}
 .card.locked::after{content:"\1F512";position:absolute;top:8px;right:9px;font-size:13px;filter:grayscale(1);opacity:.65}
 .card.next{border-color:var(--blood);box-shadow:0 0 22px rgba(176,34,28,.28) inset}
+/* トゥルーエンド（Sランク全達成で出現する隠しカード） */
+.card.trueend{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:14px 15px;
+  background:linear-gradient(100deg,#2A0A08,#160504 62%);
+  border-color:rgba(176,34,28,.55);
+  box-shadow:0 0 26px rgba(176,34,28,.22) inset;
+  animation:tebreath 3.4s ease-in-out infinite}
+@keyframes tebreath{50%{box-shadow:0 0 40px rgba(176,34,28,.4) inset;border-color:rgba(214,52,42,.85)}}
+.card.trueend .temk{flex:none;font-family:var(--disp);font-weight:900;font-size:15px;letter-spacing:.16em;
+  color:#FF5145;text-shadow:0 0 14px rgba(214,52,42,.9),0 0 30px rgba(176,34,28,.6);
+  animation:teglow 1.7s steps(1) infinite}
+@keyframes teglow{0%,100%{opacity:1}44%{opacity:.5}48%{opacity:.95}}
+.card.trueend .tetxt{min-width:0}
+.card.trueend .nm{margin-top:0;color:#FF6A5E;text-shadow:0 0 16px rgba(214,52,42,.5)}
+.card.trueend .rg{margin-top:3px;color:rgba(255,150,140,.75)}
+.card.trueend .testate{margin-left:auto;flex:none;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+  color:#FF5145;border:1px solid rgba(214,52,42,.6);padding:7px 10px;border-radius:2px;
+  animation:teglow 1.7s steps(1) infinite}
+
 .card.brief{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:13px 14px;
   background:linear-gradient(100deg,#171310,#0E0C0A 60%);border-color:rgba(232,179,58,.34)}
 .card.brief .no{font-size:34px;color:var(--hazard);flex:none;line-height:.9}
@@ -1060,6 +1078,34 @@ const EPILOGUE = [
   { sc: 'dawn', tx: 'それでも私たちは、何度でも言葉を学び直し、伝えようとするはずだ。', ms: 4400 },
   { sc: 'dawn', tx: '—— CONTAINMENT COMPLETE.', ms: 4000 }
 ];
+
+/* ===== トゥルーエンド =====
+   全12区画をSランクで浄化した者だけが辿り着く、続編への引き。
+   一度取り戻した世界から、今度は「負の概念」だけが静かに消され始める。 */
+const TRUE_EPI_HEAD = { sub: 'TRUE EPILOGUE · 10 YEARS LATER · 08:12', title: '概念の消失', cta: '——' };
+
+const TRUE_EPILOGUE = [
+  { sc: 'dawn', tx: 'あれから10年。世界は再び、不器用で愛おしい「言葉」を取り戻した。', ms: 4000 },
+  { sc: 'city', tx: '街角では人々が言い争い、外国語に悪戦苦闘しながらも、幸せそうに笑い合っている。', ms: 4800 },
+  { sc: 'city', tx: 'ふと考える。なぜオリジナルである所長は、私というクローンを生み出し、ここに送り込んだのか。', ms: 5200 },
+  { sc: 'dawn', tx: '本当は彼も、言葉を消し去るという野望の裏で、誰かに「言葉の価値」を証明してほしかったのではないか。', ms: 5600 },
+  { sc: 'dawn', tx: '私のあの日の選択は、彼の最後の「問い」に対する答えだったのだろう。', ms: 4500 },
+  { sc: 'city', tx: '……その時だった。目の前で、走っていた小さな子供が転び、膝を擦りむいて激しく泣き出した。', ms: 5400 },
+  { sc: 'city', tx: 'だが、駆け寄った母親は、満面の笑みでこう語りかけた。「嬉しいね（I\'m glad）」と。', ms: 5200 },
+  { sc: 'city', tx: '周囲の人々も、泣き叫ぶ子供を見て、不気味なほど穏やかな笑顔を浮かべている。', ms: 4800 },
+  { sc: 'wave', tx: '私は慌てて、10年間封印していた解析機（アナライザー）を起動した。', ms: 4000 },
+  { sc: 'monitor', tx: '画面には、世界中のネットワークから『Pain（痛み）』や『Sadness（悲しみ）』といった単語が、ごっそりと削除されていくエラーが表示されていた。', ms: 6500 },
+  { sc: 'monitor', tx: '所長の遺したプログラムは、完全に停止してはいなかったのだ。', ms: 4000 },
+  { sc: 'monitor', tx: '負の言葉、人間に都合の悪い概念だけをピンポイントで消去し、強制的なユートピアを作ろうとしている。', ms: 5600 },
+  { sc: 'wave', tx: '言葉の欠落は、世界からその「概念」そのものを消失させてしまう。', ms: 4500 },
+  { sc: 'city', tx: '私は再びマイクを握る。——世界に「痛み」と「悲しみ」を取り戻すために。', ms: 5000 },
+  { sc: 'city', tx: 'To Be Continued...', ms: 3000 }
+];
+const TRUE_EPI_REC = {
+  t: '解析機 エラーログ：概念の消失',
+  b: 'WARNING: CONCEPT DELETION DETECTED.\nTargeting: [Pain], [Sorrow], [Hate], [Jealousy]...\n\n言語統一計画はフェーズ2へ移行しました。\n不必要な感情のデリートを開始します。'
+};
+const TRUE_EPI_LOG = '悲しみや痛みを知らない世界は、平和などではない。\nそれはただの、感情の死だ。\n私の本当の「特務」は、ここから始まる。';
 </script>
 <script>/* ===== 幕間アニメーションの背景 ===== */
 /* 各シーンは 400x300 の SVG。共通のアニメーションクラス（k-*）は CSS 側に定義。 */
@@ -2401,6 +2447,18 @@ function renderSelect() {
       : () => toast(`区画 ${pad(n - 1)}「${STAGES[n - 2].t}」を浄化すると解放されます。`);
     g.appendChild(b);
   });
+  const allS = [1,2,3,4,5,6,7,8,9,10,11,12].every(n => SAVE.best[n] === 'S');
+  if (allS) {
+    const bt = document.createElement('button');
+    bt.className = 'card trueend';
+    bt.innerHTML = `<span class="temk">TRUE</span>
+      <div class="tetxt"><div class="nm">TRUE EPILOGUE — 隠された真実</div>
+      <div class="rg">全区画 S ランク到達 · 解禁</div></div>
+      <div class="testate">▶ 再生</div>`;
+    bt.onclick = () => { SFX.ui(); playTrueEpilogue(); };
+    g.appendChild(bt);
+  }
+
   $('#prog').textContent = `${done} / 12`;
   $('#revCount').textContent = SAVE.weak.length;
   $('#recCount').textContent = recs;
@@ -2418,6 +2476,17 @@ $$('.seg').forEach(seg => seg.addEventListener('click', e => {
   if (seg.dataset.set === 'bgm') { unlockAudio(); BGM.refresh(); }
   renderSelect();
 }));
+
+async function playTrueEpilogue() {
+  BGM.scene('dawn');
+  await CINE.play({
+    ...TRUE_EPI_HEAD, beats: TRUE_EPILOGUE,
+    rec: TRUE_EPI_REC, log: TRUE_EPI_LOG, kind: 'ANALYZER ERROR LOG', force: true
+  });
+  BGM.scene('menu');
+  renderSelect();
+  show('select');
+}
 
 function renderArchive() {
   let got = 0;
